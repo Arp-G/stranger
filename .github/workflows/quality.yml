@@ -1,0 +1,39 @@
+# name: Elixir/Phoenix Code Quality CI
+
+# on:
+#   push:
+#     branches: [ master ]
+#   pull_request:
+#     branches: [ master ]
+
+# jobs:
+#   build:
+#     name: Build & Check code quality
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - uses: actions/checkout@v2
+
+#       - name: Copy secrets
+#         run: cp ./config/env.secret.exs.sample ./config/dev.secret.exs
+
+#       - uses: actions/setup-elixir@v1
+#         id: setup-elixir
+#         with:
+#           otp-version: '23.0'
+#           elixir-version: '1.10.4'
+
+#       - name: Retrieve Mix Dependencies Cache
+#         uses: actions/cache@v2
+#         with:
+#           path: deps
+#           key: ${{ runner.os }}-${{ steps.setup-elixir.otp-version }}-${{ steps.setup-elixir.elixir-version }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+
+#       - name: Fetch dependencies
+#         run: mix deps.get
+
+#       - name: Check code formatting
+#         run: mix format --check-formatted
+
+#       - name: Run Sobelow
+#         run: mix sobelow --exit --skip
