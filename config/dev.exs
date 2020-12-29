@@ -73,3 +73,5 @@ config :stranger, Mongo,
   database: "stranger",
   url: "localhost",
   port: "27017"
+
+  import_config "dev.secret.exs"

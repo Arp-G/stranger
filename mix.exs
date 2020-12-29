@@ -40,8 +40,16 @@ defmodule Stranger.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
+      {:ecto, "~> 3.5"},
+      {:phoenix_ecto, "~> 4.0"},
+      {:ecto_sql, "~> 3.1"},
+      {:arc, "~> 0.11.0"},
+      {:ex_aws, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.0"},
+      {:arc_ecto, "~> 0.11.2"},
       {:mongodb, ">= 0.0.0"},
       {:poolboy, ">= 0.0.0"},
+      {:argon2_elixir, "~> 2.0"},
 
       # dev, test
       {:phoenix_live_reload, "~> 1.2", only: :dev},
