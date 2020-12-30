@@ -1,8 +1,6 @@
 defmodule Stranger.Accounts.User do
-  use Ecto.Schema
-  import Ecto.Changeset
-
-  alias Stranger.Accounts.{User, Profile}
+  use Stranger.Schema
+  alias Stranger.Accounts.Profile
 
   @primary_key false
   embedded_schema do
@@ -53,5 +51,19 @@ defmodule Stranger.Accounts.User do
   defp validate_unique_email(%Ecto.Changeset{changes: %{email: email}} = changeset) do
     Mongo.find_one(:mongo, "users", %{email: email})
     |> if(do: add_error(changeset, :email, "has already been taken"), else: changeset)
+  end
+
+  # Override default to_struct
+  def to_struct(%{"profile" => profile} = user) do
+    user = Map.put(user, "profile", Profile.to_struct(profile))
+    # Call default overriden function
+    super(user)
+  end
+
+  # Override default from_struct
+  def from_struct(%{profile: profile} = user) do
+    user = Map.put(user, :profile, Profile.from_struct(profile))
+    # Call default overriden function
+    super(user)
   end
 end

@@ -1,8 +1,7 @@
 defmodule Stranger.Accounts.Profile do
-  use Ecto.Schema
+  use Stranger.Schema
   use Arc.Ecto.Schema
 
-  import Ecto.Changeset
   alias Stranger.Accounts.Profile
   alias Stranger.Uploaders.Avatar
 
