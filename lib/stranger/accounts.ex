@@ -10,9 +10,7 @@ defmodule Stranger.Accounts do
         args_map =
           changset
           |> Ecto.Changeset.apply_changes()
-          |> Map.delete(:password)
-
-        args_map = Map.put(args_map, :profile, Map.from_struct(args_map.profile))
+          |> User.from_struct()
 
         Mongo.insert_one(:mongo, "users", args_map)
 

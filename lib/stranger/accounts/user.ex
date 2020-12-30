@@ -63,7 +63,9 @@ defmodule Stranger.Accounts.User do
   # Override default from_struct
   def from_struct(%{profile: profile} = user) do
     user = Map.put(user, :profile, Profile.from_struct(profile))
-    # Call default overriden function
-    super(user)
+
+    user
+    |> super() # Call default overriden function
+    |> Map.delete(:password)
   end
 end
