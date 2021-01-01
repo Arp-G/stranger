@@ -2,17 +2,18 @@ defmodule StrangerWeb.HomeLive do
   use StrangerWeb, :live_view
   use Phoenix.HTML
   import StrangerWeb.ErrorHelpers
+  alias Stranger.Uploaders.Avatar
 
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
-     assign(
-       socket,
-       %{
-         changeset: Stranger.Accounts.User.registration_changeset(%{}),
-         section: 0
-       }
-     )}
+     socket
+     |> assign(%{
+       changeset: Stranger.Accounts.User.registration_changeset(%{}),
+       section: 0,
+       uploaded_files: []
+     })
+     |> allow_upload(:avatar, accept: ~w(.jpg .jpeg .png))}
   end
 
   @impl true
@@ -30,7 +31,20 @@ defmodule StrangerWeb.HomeLive do
   def handle_event("save", %{"user" => user_params}, socket) do
     case Stranger.Accounts.create_user(user_params) do
       {:ok, user} ->
-        {:noreply, put_flash(socket, :info, "user created")}
+        if uploaded_entries(socket, :avatar) != [] do
+          case handle_avatar_upload(socket, user) do
+            {:error, _} ->
+              {
+                :noreply,
+                put_flash(socket, :warn, "Registered successfully but avatar upload failed")
+              }
+
+            _ ->
+              {:noreply, put_flash(socket, :info, "Registered successfully")}
+          end
+        else
+          {:noreply, put_flash(socket, :info, "Registered successfully")}
+        end
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, changeset: Map.put(changeset, :action, :insert))}
@@ -43,8 +57,25 @@ defmodule StrangerWeb.HomeLive do
     {:noreply, assign(socket, section: section_number)}
   end
 
-  def handle_event("prev",_args, %{assigns: %{section: section_number}} = socket) do
+  def handle_event("prev", _args, %{assigns: %{section: section_number}} = socket) do
     section_number = if section_number > 0, do: section_number - 1, else: section_number
     {:noreply, assign(socket, section: section_number)}
   end
+
+  defp handle_avatar_upload(socket, user) do
+    [file_path] =
+      consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
+        dest = Path.join("priv/static/uploads", Path.basename(path))
+        File.cp!(path, dest)
+        dest
+      end)
+
+    case Avatar.store({file_path, user}) do
+      {:ok, img_url} -> Stranger.Accounts.update_avatar(user, img_url)
+      _ -> {:error, "Image upload failed"}
+    end
+  end
 end
+
+# p = "live_view_upload-1609522426-906582229084086-5"
+# Avatar.url({user.profile.avatar, user}, signed: true)

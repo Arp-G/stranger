@@ -46,6 +46,7 @@ defmodule Stranger.MixProject do
       {:arc, "~> 0.11.0"},
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},
+      {:sweet_xml, "~> 0.6.6"},
       {:arc_ecto, "~> 0.11.2"},
       {:mongodb, ">= 0.0.0"},
       {:poolboy, ">= 0.0.0"},

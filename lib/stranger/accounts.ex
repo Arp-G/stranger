@@ -11,7 +11,16 @@ defmodule Stranger.Accounts do
           |> Ecto.Changeset.apply_changes()
           |> User.from_struct()
 
-        Mongo.insert_one(:mongo, "users", args_map)
+        case Mongo.insert_one(:mongo, "users", args_map) do
+          {:ok, _} ->
+            {
+              :ok,
+              Mongo.find_one(:mongo, "users", %{email: args_map.email}) |> User.to_struct()
+            }
+
+          _ ->
+            {:error, changset}
+        end
 
       changeset ->
         {:error, changeset}
@@ -39,23 +48,27 @@ defmodule Stranger.Accounts do
     end
   end
 
+  def update_avatar(%User{email: email}, filename) do
+    Mongo.update_one(:mongo, "users", %{email: email}, %{"$set": %{"profile.avatar": filename}})
+  end
+
   # Embed th profile data if the user changeset is valid and the profile changeset is valid
   # Else return either the invalid user or profile changeset
-  defp add_user_profile(%Ecto.Changeset{valid?: true} = user_changeset, params) do
-    params
-    |> Profile.changeset(%Profile{})
-    |> case do
-      %Ecto.Changeset{valid?: true} = profile_changeset ->
-        Ecto.Changeset.put_embed(
-          user_changeset,
-          :profile,
-          Ecto.Changeset.apply_changes(profile_changeset)
-        )
+  # defp add_user_profile(%Ecto.Changeset{valid?: true} = user_changeset, params) do
+  #   params
+  #   |> Profile.changeset(%Profile{})
+  #   |> case do
+  #     %Ecto.Changeset{valid?: true} = profile_changeset ->
+  #       Ecto.Changeset.put_embed(
+  #         user_changeset,
+  #         :profile,
+  #         Ecto.Changeset.apply_changes(profile_changeset)
+  #       )
 
-      profile_changeset ->
-        profile_changeset
-    end
-  end
+  #     profile_changeset ->
+  #       profile_changeset
+  #   end
+  # end
 
   defp add_user_profile(user_changeset, _params), do: user_changeset
 

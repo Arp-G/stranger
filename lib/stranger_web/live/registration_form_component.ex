@@ -7,6 +7,9 @@ defmodule StrangerWeb.RegistrationFormComponent do
   def render(assigns) do
     ~L"""
       <h2> Section <%= @section %> </h2>
+      <%= for entry <- @uploads.avatar.entries do %>
+        <%= entry.client_name %> - <%= entry.progress %>%
+      <% end %>
       </form>
         <%= f = form_for @changeset, "#", [phx_change: :validate, phx_submit: :save] %>
         <section class="<%= section_class(@section, 1) %>">
@@ -29,6 +32,9 @@ defmodule StrangerWeb.RegistrationFormComponent do
         <section class="<%= section_class(@section, 2) %>">
           <p>
             <%= inputs_for f, :profile, fn fp -> %>
+              <p>
+                <%= live_file_input @uploads.avatar %>
+              </p>
               <p>
                 <%= label fp, :first_name %>
                 <%= text_input fp, :first_name %>

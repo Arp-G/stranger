@@ -1,7 +1,7 @@
 <section>
   <h1>Stranger - Find your next pen friend</h1>
 
-  <%= live_component @socket, StrangerWeb.RegistrationFormComponent, changeset: @changeset, section: @section %>
+  <%= live_component @socket, StrangerWeb.RegistrationFormComponent, changeset: @changeset, section: @section, uploads: @uploads %>
   <p>
     <button class="btn btn-primary" phx-click="prev">Back</button>
     <button class="btn btn-primary" phx-click="next">Next</button>

@@ -4,6 +4,7 @@ defmodule Stranger.Accounts.User do
 
   @primary_key false
   embedded_schema do
+    field(:_id, :integer)
     field(:email, :string, null: false)
     field(:password_hash, :string, null: false)
     field(:password, :string, virtual: true)
@@ -43,7 +44,7 @@ defmodule Stranger.Accounts.User do
   defp put_password_hash(%Ecto.Changeset{valid?: true} = changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: password}} ->
-        put_change(changeset, :password_hash, Argon2.hash_pwd_salt(password))
+        put_change(changeset, :password_hash, "Argon2.hash_pwd_salt(password)")
 
       _ ->
         changeset
@@ -59,6 +60,14 @@ defmodule Stranger.Accounts.User do
 
   defp validate_unique_email(changeset), do: changeset
 
+
+  # Override default to_struct
+  def to_struct(%{profile: profile} = user) do
+    user = Map.put(user, "profile", Profile.to_struct(profile))
+    # Call default overriden function
+    super(user)
+  end
+
   # Override default to_struct
   def to_struct(%{"profile" => profile} = user) do
     user = Map.put(user, "profile", Profile.to_struct(profile))
@@ -73,6 +82,6 @@ defmodule Stranger.Accounts.User do
     user
     # Call default overriden function
     |> super()
-    |> Map.delete(:password)
+    |> Map.drop([:_id, :password])
   end
 end
