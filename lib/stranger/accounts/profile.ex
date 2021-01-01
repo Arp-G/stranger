@@ -11,13 +11,12 @@ defmodule Stranger.Accounts.Profile do
     field(:last_name, :string)
     field(:avatar, Avatar.Type)
     field(:dob, :utc_datetime)
-    field(:hobbies, :string)
     field(:bio, :string)
   end
 
   def changeset(user_profile, attrs) do
     user_profile
-    |> cast(attrs, [:first_name, :last_name, :dob, :hobbies, :bio])
+    |> cast(sanitize_dob(attrs), [:first_name, :last_name, :dob, :bio])
     |> validate_required([:first_name, :last_name])
     |> validate_change(:dob, &validate_date_not_in_the_future/2)
   end
@@ -43,10 +42,14 @@ defmodule Stranger.Accounts.Profile do
     end
   end
 
-  # defp dob_date_to_datetime(%Ecto.Changeset{valid?: true, changes: %{dob: dob}} = changeset) do
-  #   {:ok, datetime, 0} = DateTime.from_iso8601("#{dob} 00:00:00Z")
-  #   put_change(changeset, :dob, datetime)
-  # end
+  defp sanitize_dob(
+         %{
+           "dob" =>
+             <<_YY::binary-size(4), "-", _MM::binary-size(2), "-", _DD::binary-size(2)>> = dob
+         } = attrs
+       ) do
+    Map.put(attrs, "dob", "#{dob} 00:00:00Z")
+  end
 
-  # defp dob_date_to_datetime(changeset), do: changeset
+  defp sanitize_dob(attrs), do: attrs
 end

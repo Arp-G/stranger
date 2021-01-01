@@ -40,6 +40,19 @@ defmodule StrangerWeb.RegistrationFormComponent do
                 <%= text_input fp, :last_name %>
                 <p><%= error_tag fp, :last_name %></p>
               </p>
+
+              <p>
+                <%= label fp, :dob %>
+                <%= date_input fp, :dob, value: date_time_to_date(fp.params["dob"]) %>
+                <p><%= error_tag fp, :dob %></p>
+              </p>
+
+              <p>
+                <%= label fp, :bio %>
+                <%= textarea fp, :bio %>
+                <p><%= error_tag fp, :bio %></p>
+              </p>
+
             <% end %>
           </p>
           <p>
