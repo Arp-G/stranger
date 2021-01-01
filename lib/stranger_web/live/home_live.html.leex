@@ -1,39 +1,9 @@
 <section>
   <h1>Stranger - Find your next pen friend</h1>
 
-  </form>
-    <%= f = form_for @changeset, "#", [phx_change: :validate, phx_submit: :save] %>
-    <p>
-      <%= label f, :email %>
-      <%= text_input f, :email, ["phx-debounce": "1500"]%>
-      <p><%= error_tag f, :email %></p>
-    </p>
-
-    <p>
-      <%= label f, :password %>
-      <%= password_input f, :password, value: input_value(f, :password) %>
-      <p><%= error_tag f, :password %></p>
-      <%= label f, :password_confirmation %>
-      <%= password_input f, :password_confirmation, value: input_value(f, :password_confirmation) %>
-      <p><%= error_tag f, :password_confirmation %></p>
-    </p>
-
-    <p>
-      <%= inputs_for f, :profile, fn fp -> %>
-        <p>
-          <%= label fp, :first_name %>
-          <%= text_input fp, :first_name %>
-          <p><%= error_tag fp, :first_name %></p>
-        </p>
-
-        <p>
-          <%= label fp, :last_name %>
-          <%= text_input fp, :last_name %>
-          <p><%= error_tag fp, :last_name %></p>
-        </p>
-      <% end %>
-    </p>
-
-    <%= submit "Save", ["phx-disable-with": "Saving..."] %>
-  </form>
+  <%= live_component @socket, StrangerWeb.RegistrationFormComponent, changeset: @changeset, section: @section %>
+  <p>
+    <button class="btn btn-primary" phx-click="prev">Back</button>
+    <button class="btn btn-primary" phx-click="next">Next</button>
+  </p>
 </section>
