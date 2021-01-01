@@ -15,7 +15,7 @@ defmodule Stranger.Accounts.Profile do
     field(:bio, :string)
   end
 
-  def changeset(attrs, user_profile \\ %Profile{}) do
+  def changeset(user_profile, attrs) do
     user_profile
     |> cast(attrs, [:first_name, :last_name, :dob, :hobbies, :bio])
     |> validate_required([:first_name, :last_name])

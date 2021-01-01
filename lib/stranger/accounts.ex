@@ -4,7 +4,6 @@ defmodule Stranger.Accounts do
   def create_user(params) do
     params
     |> User.registration_changeset()
-    |> add_user_profile(params)
     |> case do
       %Ecto.Changeset{valid?: true} = changset ->
         args_map =
@@ -15,7 +14,7 @@ defmodule Stranger.Accounts do
         Mongo.insert_one(:mongo, "users", args_map)
 
       changeset ->
-        changeset
+        {:error, changeset}
     end
   end
 
@@ -44,7 +43,7 @@ defmodule Stranger.Accounts do
   # Else return either the invalid user or profile changeset
   defp add_user_profile(%Ecto.Changeset{valid?: true} = user_changeset, params) do
     params
-    |> Profile.changeset()
+    |> Profile.changeset(%Profile{})
     |> case do
       %Ecto.Changeset{valid?: true} = profile_changeset ->
         Ecto.Changeset.put_embed(

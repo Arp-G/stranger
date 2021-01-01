@@ -26,6 +26,8 @@ defmodule Stranger.Accounts.User do
       message: "does not match password"
     )
     |> validate_format(:password, ~r/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/)
+    # This automatically calls thhe embedded modules changeset/2 function,
+    # to run validations on the embedded schema, using :with option we provide a custom function instead of the default changeset/2
     |> cast_embed(:profile)
     |> validate_unique_email()
     |> put_password_hash()
@@ -38,7 +40,7 @@ defmodule Stranger.Accounts.User do
     |> put_change(:last_sign_in_at, DateTime.utc_now())
   end
 
-  defp put_password_hash(changeset) do
+  defp put_password_hash(%Ecto.Changeset{valid?: true} = changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: password}} ->
         put_change(changeset, :password_hash, Argon2.hash_pwd_salt(password))
@@ -48,10 +50,14 @@ defmodule Stranger.Accounts.User do
     end
   end
 
-  defp validate_unique_email(%Ecto.Changeset{changes: %{email: email}} = changeset) do
+  defp put_password_hash(changeset), do: changeset
+
+  defp validate_unique_email(%Ecto.Changeset{valid?: true, changes: %{email: email}} = changeset) do
     Mongo.find_one(:mongo, "users", %{email: email})
     |> if(do: add_error(changeset, :email, "has already been taken"), else: changeset)
   end
+
+  defp validate_unique_email(changeset), do: changeset
 
   # Override default to_struct
   def to_struct(%{"profile" => profile} = user) do
@@ -65,7 +71,8 @@ defmodule Stranger.Accounts.User do
     user = Map.put(user, :profile, Profile.from_struct(profile))
 
     user
-    |> super() # Call default overriden function
+    # Call default overriden function
+    |> super()
     |> Map.delete(:password)
   end
 end
