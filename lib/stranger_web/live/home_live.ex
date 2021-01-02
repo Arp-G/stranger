@@ -13,7 +13,7 @@ defmodule StrangerWeb.HomeLive do
        section: 0,
        uploaded_files: []
      })
-     |> allow_upload(:avatar, accept: ~w(.jpg .jpeg .png))}
+     |> allow_upload(:avatar, accept: ~w(.jpg .jpeg .png), max_entries: 1)}
   end
 
   @impl true
@@ -31,23 +31,25 @@ defmodule StrangerWeb.HomeLive do
   def handle_event("save", %{"user" => user_params}, socket) do
     case Stranger.Accounts.create_user(user_params) do
       {:ok, user} ->
-        if uploaded_entries(socket, :avatar) != [] do
-          case handle_avatar_upload(socket, user) do
-            {:error, _} ->
-              {
-                :noreply,
-                put_flash(socket, :warn, "Registered successfully but avatar upload failed")
-              }
+        case handle_avatar_upload(socket, user) do
+          {:error, _} ->
+            {
+              :noreply,
+              put_flash(socket, :error, "Registered successfully but avatar upload failed")
+            }
 
-            _ ->
-              {:noreply, put_flash(socket, :info, "Registered successfully")}
-          end
-        else
-          {:noreply, put_flash(socket, :info, "Registered successfully")}
+          _ ->
+            {:noreply, put_flash(socket, :info, "Registered successfully")}
         end
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, changeset: Map.put(changeset, :action, :insert))}
+        {
+          :noreply,
+          socket
+          |> assign(changeset: Map.put(changeset, :action, :insert))
+          |> clear_flash()
+          |> put_flash(:error, "Could not register user check for errors")
+        }
     end
   end
 
@@ -63,16 +65,23 @@ defmodule StrangerWeb.HomeLive do
   end
 
   defp handle_avatar_upload(socket, user) do
-    [file_path] =
-      consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
-        dest = Path.join("priv/static/uploads", Path.basename(path))
-        File.cp!(path, dest)
-        dest
-      end)
+    consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
+      dest = Path.join("priv/static/uploads", Path.basename(path))
+      File.cp!(path, dest)
+      dest
+    end)
+    |> case do
+      [file_path] ->
+        case Avatar.store({file_path, user}) do
+          {:ok, img_url} ->
+            Stranger.Accounts.update_avatar(user, img_url)
 
-    case Avatar.store({file_path, user}) do
-      {:ok, img_url} -> Stranger.Accounts.update_avatar(user, img_url)
-      _ -> {:error, "Image upload failed"}
+          [] ->
+            {:error, "Image upload failed"}
+        end
+
+      _ ->
+        :ok
     end
   end
 end

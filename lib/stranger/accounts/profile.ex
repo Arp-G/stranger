@@ -18,6 +18,7 @@ defmodule Stranger.Accounts.Profile do
     user_profile
     |> cast(sanitize_dob(attrs), [:first_name, :last_name, :dob, :bio])
     |> validate_required([:first_name, :last_name])
+    |> validate_length(:bio, max: 100)
     |> validate_change(:dob, &validate_date_not_in_the_future/2)
   end
 
