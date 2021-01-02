@@ -1,9 +1,13 @@
 <section>
   <h1>Stranger - Find your next pen friend</h1>
 
-  <%= live_component @socket, StrangerWeb.RegistrationFormComponent, changeset: @changeset, section: @section, uploads: @uploads %>
-  <p>
-    <button class="btn btn-primary" phx-click="prev">Back</button>
-    <button class="btn btn-primary" phx-click="next">Next</button>
-  </p>
+  <%= if @section == 0 do %>
+    <%= live_component @socket, StrangerWeb.LoginFormComponent, id: :login %>
+  <% else %>
+    <%= live_component @socket, StrangerWeb.RegistrationFormComponent, changeset: @changeset, section: @section, uploads: @uploads %>
+    <p>
+      <button class="btn btn-primary" phx-click="prev">Back</button>
+      <button class="btn btn-primary" phx-click="next">Next</button>
+    </p>
+  <% end %>
 </section>

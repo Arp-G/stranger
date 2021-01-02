@@ -20,7 +20,7 @@ defmodule StrangerWeb.HomeLive do
   def handle_event("validate", %{"user" => params}, socket) do
     changeset =
       params
-      |> Stranger.Accounts.User.registration_changeset()
+      |> Stranger.Accounts.User.validation_changeset()
       # Erros are only shown on form submit action, since we use live view the form is not yet submitted so we have to change the action argument
       |> Map.put(:action, :insert)
 
@@ -59,9 +59,19 @@ defmodule StrangerWeb.HomeLive do
     {:noreply, assign(socket, section: section_number)}
   end
 
+  @imp true
   def handle_event("prev", _args, %{assigns: %{section: section_number}} = socket) do
     section_number = if section_number > 0, do: section_number - 1, else: section_number
     {:noreply, assign(socket, section: section_number)}
+  end
+
+  @imp true
+  def handle_event(
+        "jump_to_" <> jump_to,
+        _args,
+        %{assigns: %{section: section_number}} = socket
+      ) do
+    {:noreply, assign(socket, section: String.to_integer(jump_to))}
   end
 
   defp handle_avatar_upload(socket, user) do

@@ -7,8 +7,7 @@ defmodule StrangerWeb.RegistrationFormComponent do
   def render(assigns) do
     ~L"""
       <h2> Section <%= @section %> </h2>
-      </form>
-        <%= f = form_for @changeset, "#", [phx_change: :validate, phx_submit: :save] %>
+      <%= f = form_for @changeset, "#", [phx_change: :validate, phx_submit: :save] %>
         <section class="<%= section_class(@section, 1) %>">
           <p>
             <%= label f, :email %>
@@ -27,13 +26,14 @@ defmodule StrangerWeb.RegistrationFormComponent do
         </section>
 
         <section class="<%= section_class(@section, 2) %>">
-        <p id="avatar-preview" phx-update="ignore">
-          <img id="avatar" alt="Profile image" width="100" height="100" />
-        </p>
+        <%= for entry <- @uploads.avatar.entries do %>
+          <%= live_img_preview entry, width: 75 %>
+        <% end %>
+
           <p>
             <%= inputs_for f, :profile, fn fp -> %>
               <p>
-                <%= live_file_input @uploads.avatar, [onchange: "document.getElementById('avatar').src = window.URL.createObjectURL(this.files[0])"] %>
+                <%= live_file_input @uploads.avatar %>
                 <br>
                 <%= if entry = List.last(@uploads.avatar.entries) do %>
                   Uploaded - <strong><%= entry.progress %>%</strong>

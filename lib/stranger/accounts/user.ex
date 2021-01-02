@@ -16,6 +16,12 @@ defmodule Stranger.Accounts.User do
   end
 
   def registration_changeset(attrs, user \\ %User{}) do
+    validation_changeset(attrs, user)
+    |> put_password_hash()
+    |> put_change(:inserted_at, DateTime.utc_now())
+  end
+
+  def validation_changeset(attrs, user \\ %User{}) do
     user
     |> cast(attrs, [:email, :password])
     |> validate_required([:email, :password])
@@ -31,8 +37,6 @@ defmodule Stranger.Accounts.User do
     # This automatically calls thhe embedded modules changeset/2 function,
     # to run validations on the embedded schema, using :with option we provide a custom function instead of the default changeset/2
     |> cast_embed(:profile)
-    |> put_password_hash()
-    |> put_change(:inserted_at, DateTime.utc_now())
   end
 
   def login_changeset(user, attrs) do
@@ -44,7 +48,7 @@ defmodule Stranger.Accounts.User do
   defp put_password_hash(%Ecto.Changeset{valid?: true} = changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: password}} ->
-        put_change(changeset, :password_hash, Argon2.hash_pwd_salt(password))
+        put_change(changeset, :password_hash, "Argon2.hash_pwd_salt(password)")
 
       _ ->
         changeset
