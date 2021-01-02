@@ -6,7 +6,10 @@ defmodule StrangerWeb.RegistrationFormComponent do
 
   def render(assigns) do
     ~L"""
-      <h2> Section <%= @section %> </h2>
+      <%= if entry = List.last(@uploads.avatar.entries) do %>
+        <%= live_img_preview entry, width: 75 %>
+        <a href="#" phx-click="cancel-upload" phx-value-ref="<%= entry.ref %>">&times</a>
+      <% end %>
       <%= f = form_for @changeset, "#", [phx_change: :validate, phx_submit: :save] %>
         <section class="<%= section_class(@section, 1) %>">
           <p>
@@ -26,14 +29,10 @@ defmodule StrangerWeb.RegistrationFormComponent do
         </section>
 
         <section class="<%= section_class(@section, 2) %>">
-        <%= for entry <- @uploads.avatar.entries do %>
-          <%= live_img_preview entry, width: 75 %>
-        <% end %>
-
           <p>
             <%= inputs_for f, :profile, fn fp -> %>
               <p>
-                <%= live_file_input @uploads.avatar %>
+                <%= live_file_input @uploads.avatar, phx_blur: :on_upload %>
                 <br>
                 <%= if entry = List.last(@uploads.avatar.entries) do %>
                   Uploaded - <strong><%= entry.progress %>%</strong>
@@ -70,6 +69,11 @@ defmodule StrangerWeb.RegistrationFormComponent do
           </p>
         </section>
       </form>
+      <p>
+      <a href="#" phx-click="jump_to_0">
+        Already have an Account? Sign in here.
+      </a>
+    </p>
     """
   end
 end

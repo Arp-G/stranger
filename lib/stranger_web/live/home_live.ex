@@ -18,6 +18,7 @@ defmodule StrangerWeb.HomeLive do
 
   @impl true
   def handle_event("validate", %{"user" => params}, socket) do
+    IO.inspect params
     changeset =
       params
       |> Stranger.Accounts.User.validation_changeset()
@@ -72,6 +73,27 @@ defmodule StrangerWeb.HomeLive do
         %{assigns: %{section: section_number}} = socket
       ) do
     {:noreply, assign(socket, section: String.to_integer(jump_to))}
+  end
+
+  # Cancel all subsequest uploads
+  @imp true
+  def handle_event(
+        "on_upload",
+        %{},
+        %{assigns: %{uploads: %{avatar: %{entries: uploads}}}} = socket
+      ) do
+    case uploads do
+      [first, last] ->
+        {:noreply, cancel_upload(socket, :avatar, first.ref)}
+
+      _ ->
+        {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_event("cancel-upload", %{"ref" => ref}, socket) do
+    {:noreply, cancel_upload(socket, :avatar, ref)}
   end
 
   defp handle_avatar_upload(socket, user) do

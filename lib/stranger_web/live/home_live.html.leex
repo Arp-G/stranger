@@ -6,8 +6,12 @@
   <% else %>
     <%= live_component @socket, StrangerWeb.RegistrationFormComponent, changeset: @changeset, section: @section, uploads: @uploads %>
     <p>
-      <button class="btn btn-primary" phx-click="prev">Back</button>
-      <button class="btn btn-primary" phx-click="next">Next</button>
+      <%= if @section == 2 do %>
+        <button class="btn btn-primary" phx-click="prev">Back</button>
+      <% end %>
+      <%= if @section == 1 do %>
+        <button class="btn btn-primary" phx-click="next">Next</button>
+      <% end %>
     </p>
   <% end %>
 </section>
