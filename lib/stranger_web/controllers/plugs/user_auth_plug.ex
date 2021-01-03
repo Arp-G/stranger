@@ -1,4 +1,4 @@
-defmodule StrangerWeb.UserAuthPlug do
+defmodule StrangerWeb.UserAuth do
   @moduledoc """
   This module containes a plug for user authentication.
   """
@@ -6,19 +6,17 @@ defmodule StrangerWeb.UserAuthPlug do
   import Plug.Conn
   import Phoenix.Controller
   alias StrangerWeb.Router.Helpers, as: Routes
-  alias Stranger.{Accounts, Accounts.User}
+  alias Stranger.Accounts
 
   def init(options) do
     options
   end
 
   def call(conn, _opts) do
-    case Phoenix.Token.verify(
-           Application.get_env(:stranger, :secret_key),
-           Application.get_env(:stranger, :salt),
-           get_session(conn, :token),
-           max_age: 86400
-         ) do
+    conn
+    |> get_session(:token)
+    |> get_user_id()
+    |> case do
       {:ok, user_id} ->
         assign(conn, :user, Accounts.get_user(user_id))
 
@@ -28,6 +26,15 @@ defmodule StrangerWeb.UserAuthPlug do
         |> redirect(to: Routes.home_path(conn, :index))
         |> halt()
     end
+  end
+
+  def get_user_id(token) do
+    Phoenix.Token.verify(
+      Application.get_env(:stranger, :secret_key),
+      Application.get_env(:stranger, :salt),
+      token,
+      max_age: 86400
+    )
   end
 
   # @spec logout_user(Plug.Conn.t()) :: Plug.Conn.t()

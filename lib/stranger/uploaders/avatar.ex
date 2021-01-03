@@ -6,7 +6,7 @@ defmodule Stranger.Uploaders.Avatar do
 
   @extension_whitelist ~w(.jpg .jpeg .png)
   # 5mb
-  @max_size 5_242_880
+  # @max_size 5_242_880
 
   # def call(file_path, user) do
 
@@ -23,8 +23,8 @@ defmodule Stranger.Uploaders.Avatar do
   # Whitelist file extensions:
   def validate({file, _}) do
     file_extension = file.file_name |> Path.extname() |> String.downcase()
-    %{size: size} = File.stat!(file.path)
-    Enum.member?(@extension_whitelist, file_extension) && size <= @max_siz
+    # %{size: size} = File.stat!(file.path)
+    Enum.member?(@extension_whitelist, file_extension)
     true
   end
 

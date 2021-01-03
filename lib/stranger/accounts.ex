@@ -1,8 +1,8 @@
 defmodule Stranger.Accounts do
-  alias Stranger.Accounts.{User, Profile}
+  alias Stranger.Accounts.User
 
   def get_user(%BSON.ObjectId{} = id) do
-    Mongo.find_one(:mongo, "users", %{_id:  id})
+    Mongo.find_one(:mongo, "users", %{_id: id})
     |> User.to_struct()
   end
 
@@ -56,26 +56,6 @@ defmodule Stranger.Accounts do
   def update_avatar(%User{email: email}, filename) do
     Mongo.update_one(:mongo, "users", %{email: email}, %{"$set": %{"profile.avatar": filename}})
   end
-
-  # Embed th profile data if the user changeset is valid and the profile changeset is valid
-  # Else return either the invalid user or profile changeset
-  # defp add_user_profile(%Ecto.Changeset{valid?: true} = user_changeset, params) do
-  #   params
-  #   |> Profile.changeset(%Profile{})
-  #   |> case do
-  #     %Ecto.Changeset{valid?: true} = profile_changeset ->
-  #       Ecto.Changeset.put_embed(
-  #         user_changeset,
-  #         :profile,
-  #         Ecto.Changeset.apply_changes(profile_changeset)
-  #       )
-
-  #     profile_changeset ->
-  #       profile_changeset
-  #   end
-  # end
-
-  defp add_user_profile(user_changeset, _params), do: user_changeset
 
   defp verify_password(password, %User{password_hash: password_hash} = user)
        when is_binary(password) do

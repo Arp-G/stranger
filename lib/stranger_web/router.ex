@@ -11,7 +11,7 @@ defmodule StrangerWeb.Router do
   end
 
   pipeline :auth do
-    plug StrangerWeb.UserAuthPlug
+    plug StrangerWeb.UserAuth
   end
 
   pipeline :api do

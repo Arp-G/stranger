@@ -1,10 +1,8 @@
 defmodule StrangerWeb.SessionController do
   use StrangerWeb, :controller
 
-  alias Stranger.{Accounts, Accounts.User}
-
   def sign_in(conn, %{"email" => email, "password" => password}) do
-    case Accounts.sign_in(current_ip(conn), email, password) do
+    case Stranger.Accounts.sign_in(current_ip(conn), email, password) do
       {:ok, token} ->
         conn
         |> put_session(:token, token)

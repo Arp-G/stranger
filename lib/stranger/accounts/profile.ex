@@ -2,7 +2,6 @@ defmodule Stranger.Accounts.Profile do
   use Stranger.Schema
   use Arc.Ecto.Schema
 
-  alias Stranger.Accounts.Profile
   alias Stranger.Uploaders.Avatar
 
   @primary_key false

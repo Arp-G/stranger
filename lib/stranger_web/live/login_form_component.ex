@@ -1,14 +1,13 @@
 defmodule StrangerWeb.LoginFormComponent do
   use Phoenix.LiveComponent
   use Phoenix.HTML
-  import StrangerWeb.ErrorHelpers
-  import StrangerWeb.LiveHelpers
 
   @impl true
   def mount(socket) do
     {:ok, assign(socket, %{email: "", password: ""})}
   end
 
+  @impl true
   def render(assigns) do
     ~L"""
     <section>
@@ -45,7 +44,7 @@ defmodule StrangerWeb.LoginFormComponent do
   end
 
   @impl true
-  def handle_event("sign_in", attrs, %{assigns: %{email: email, password: password}} = socket) do
+  def handle_event("sign_in", _attrs, %{assigns: %{email: email, password: password}} = socket) do
     # StrangerWeb.Router.Helpers.session_path
 
     {

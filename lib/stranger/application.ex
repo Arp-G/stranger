@@ -10,10 +10,11 @@ defmodule Stranger.Application do
       # Start the Telemetry supervisor
       StrangerWeb.Telemetry,
       # Start the PubSub system
-      {Phoenix.PubSub, name: Stranger.PubSub},
+      {Phoenix.PubSub, name: Stranger.PubSub, adapter: Phoenix.PubSub.PG2},
       # Start the Endpoint (http/https)
       StrangerWeb.Endpoint,
-      {Mongo, mongo_db()}
+      {Mongo, mongo_db()},
+      Stranger.ActiveUserTracker
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
