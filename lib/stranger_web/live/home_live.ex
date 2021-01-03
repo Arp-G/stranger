@@ -44,11 +44,18 @@ defmodule StrangerWeb.HomeLive do
           {:error, _} ->
             {
               :noreply,
-              put_flash(socket, :error, "Registered successfully but avatar upload failed")
+              socket
+              |> put_flash(:error, "Registered successfully but avatar upload failed")
+              |> redirect(to: StrangerWeb.Router.Helpers.home_path(socket, :index))
             }
 
           _ ->
-            {:noreply, put_flash(socket, :info, "Registered successfully")}
+            {
+              :noreply,
+              socket
+              |> put_flash(:info, "User registered successfully")
+              |> redirect(to: StrangerWeb.Router.Helpers.home_path(socket, :index))
+            }
         end
 
       {:error, %Ecto.Changeset{} = changeset} ->

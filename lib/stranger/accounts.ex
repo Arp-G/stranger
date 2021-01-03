@@ -1,6 +1,11 @@
 defmodule Stranger.Accounts do
   alias Stranger.Accounts.{User, Profile}
 
+  def get_user(%BSON.ObjectId{} = id) do
+    Mongo.find_one(:mongo, "users", %{_id:  id})
+    |> User.to_struct()
+  end
+
   def create_user(params) do
     params
     |> User.registration_changeset()

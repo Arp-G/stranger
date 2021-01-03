@@ -5,7 +5,7 @@ defmodule StrangerWeb.LoginFormComponent do
   import StrangerWeb.LiveHelpers
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(socket) do
     {:ok, assign(socket, %{email: "", password: ""})}
   end
 

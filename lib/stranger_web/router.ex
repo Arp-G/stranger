@@ -10,6 +10,10 @@ defmodule StrangerWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :auth do
+    plug StrangerWeb.UserAuthPlug
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -18,8 +22,14 @@ defmodule StrangerWeb.Router do
     pipe_through :browser
 
     live "/", HomeLive, :index
-    live "/dashboard", DashboardLive, :index
     get "/sign_in", SessionController, :sign_in
+  end
+
+  scope "/", StrangerWeb do
+    pipe_through :browser
+    pipe_through :auth
+
+    live "/dashboard", DashboardLive, :index
   end
 
   # Other scopes may use custom stacks.
@@ -34,12 +44,12 @@ defmodule StrangerWeb.Router do
   # If your application does not have an admins-only section yet,
   # you can use Plug.BasicAuth to set up some basic authentication
   # as long as you are also using SSL (which you should anyway).
-  if Mix.env() in [:dev, :test] do
-    import Phoenix.LiveDashboard.Router
+  # if Mix.env() in [:dev, :test] do
+  #   import Phoenix.LiveDashboard.Router
 
-    scope "/" do
-      pipe_through :browser
-      live_dashboard "/dashboard", metrics: StrangerWeb.Telemetry
-    end
-  end
+  #   scope "/" do
+  #     pipe_through :browser
+  #     live_dashboard "/dashboard", metrics: StrangerWeb.Telemetry
+  #   end
+  # end
 end
