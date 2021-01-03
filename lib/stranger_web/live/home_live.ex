@@ -1,7 +1,6 @@
 defmodule StrangerWeb.HomeLive do
   use StrangerWeb, :live_view
   use Phoenix.HTML
-  import StrangerWeb.ErrorHelpers
   alias Stranger.Uploaders.Avatar
 
   @impl true
@@ -18,11 +17,20 @@ defmodule StrangerWeb.HomeLive do
 
   @impl true
   def handle_event("validate", %{"user" => params}, socket) do
-    IO.inspect params
     changeset =
       params
       |> Stranger.Accounts.User.validation_changeset()
       # Erros are only shown on form submit action, since we use live view the form is not yet submitted so we have to change the action argument
+      |> Map.put(:action, :insert)
+
+    {:noreply, assign(socket, changeset: changeset)}
+  end
+
+  @impl true
+  def handle_event("validate_email", _args, %{assigns: %{changeset: changeset}} = socket) do
+    changeset =
+      changeset
+      |> Stranger.Accounts.User.validate_unique_email()
       |> Map.put(:action, :insert)
 
     {:noreply, assign(socket, changeset: changeset)}
@@ -60,30 +68,22 @@ defmodule StrangerWeb.HomeLive do
     {:noreply, assign(socket, section: section_number)}
   end
 
-  @imp true
+  @impl true
   def handle_event("prev", _args, %{assigns: %{section: section_number}} = socket) do
     section_number = if section_number > 0, do: section_number - 1, else: section_number
     {:noreply, assign(socket, section: section_number)}
   end
 
-  @imp true
-  def handle_event(
-        "jump_to_" <> jump_to,
-        _args,
-        %{assigns: %{section: section_number}} = socket
-      ) do
+  @impl true
+  def handle_event("jump_to_" <> jump_to, _args, socket) do
     {:noreply, assign(socket, section: String.to_integer(jump_to))}
   end
 
   # Cancel all subsequest uploads
-  @imp true
-  def handle_event(
-        "on_upload",
-        %{},
-        %{assigns: %{uploads: %{avatar: %{entries: uploads}}}} = socket
-      ) do
-    case uploads do
-      [first, last] ->
+  @impl true
+  def handle_event("on_upload", %{}, %{assigns: %{uploads: uploads}} = socket) do
+    case uploads.avatar.entries do
+      [first, _last] ->
         {:noreply, cancel_upload(socket, :avatar, first.ref)}
 
       _ ->
@@ -108,7 +108,7 @@ defmodule StrangerWeb.HomeLive do
           {:ok, img_url} ->
             Stranger.Accounts.update_avatar(user, img_url)
 
-          [] ->
+          _ ->
             {:error, "Image upload failed"}
         end
 

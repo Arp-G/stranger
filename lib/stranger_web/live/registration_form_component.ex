@@ -6,15 +6,11 @@ defmodule StrangerWeb.RegistrationFormComponent do
 
   def render(assigns) do
     ~L"""
-      <%= if entry = List.last(@uploads.avatar.entries) do %>
-        <%= live_img_preview entry, width: 75 %>
-        <a href="#" phx-click="cancel-upload" phx-value-ref="<%= entry.ref %>">&times</a>
-      <% end %>
       <%= f = form_for @changeset, "#", [phx_change: :validate, phx_submit: :save] %>
         <section class="<%= section_class(@section, 1) %>">
           <p>
             <%= label f, :email %>
-            <%= email_input f, :email, ["phx-debounce": "1500"]%>
+            <%= email_input f, :email, phx_blur: "validate_email" %>
             <p><%= error_tag f, :email %></p>
           </p>
 
@@ -32,7 +28,14 @@ defmodule StrangerWeb.RegistrationFormComponent do
           <p>
             <%= inputs_for f, :profile, fn fp -> %>
               <p>
+                <%= if entry = List.last(@uploads.avatar.entries) do %>
+                  <%= live_img_preview entry, width: 75 %>
+                  <a href="#" phx-click="cancel-upload" phx-value-ref="<%= entry.ref %>">&times</a>
+                <% end %>
+              </p>
+              <p>
                 <%= live_file_input @uploads.avatar, phx_blur: :on_upload %>
+                <p><%= error_tag fp, :avatar %></p>
                 <br>
                 <%= if entry = List.last(@uploads.avatar.entries) do %>
                   Uploaded - <strong><%= entry.progress %>%</strong>
