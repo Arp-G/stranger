@@ -35,23 +35,25 @@ defmodule StrangerWeb.DashboardLive do
   end
 
   @impl true
-  def handle_info(:search_tick, %{assigns: %{status: status, user_id: user_id}} = socket) do
+  def handle_info(:search_tick, %{assigns: %{status: status}} = socket) do
     if(status == :searching, do: Process.send_after(self(), :search_tick, 1000))
-    x = UserTracker.get_match_for_user(user_id)
-    IO.inspect(x)
 
-    case x do
-      nil ->
-        {:noreply, socket}
-
-      matched_user_id ->
-        {:noreply, assign(socket, status: {:matched, matched_user_id})}
-    end
+    {:noreply, socket}
   end
 
   @impl true
-  def handle_info(active_users, socket) do
+  def handle_info({:active_users, active_users}, socket) do
     {:noreply, assign(socket, active_users: active_users)}
+  end
+
+  @impl true
+  def handle_info({:matched, [user_1, user_2]}, %{assigns: %{user_id: user_id}} = socket) do
+    if user_id in [user_1, user_2] do
+      matched_user = if(user_id == user_1, do: user_2, else: user_1)
+      {:noreply, assign(socket, status: {:matched, matched_user})}
+    else
+      {:noreply, socket}
+    end
   end
 
   @impl true
@@ -69,7 +71,7 @@ defmodule StrangerWeb.DashboardLive do
 
       {:matched, matched_user_id} ->
         ~E"""
-          Found a match with <%= matched_user_id %>
+          Found a match with <%= inspect(matched_user_id) %>
         """
 
       _ ->

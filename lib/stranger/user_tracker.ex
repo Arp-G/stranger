@@ -9,6 +9,7 @@ defmodule Stranger.UserTracker do
   end
 
   def init(_) do
+    Process.send_after(self(), :matching, 1000)
     {:ok, %{active_users: MapSet.new(), searching_users: MapSet.new()}}
   end
 
@@ -22,21 +23,6 @@ defmodule Stranger.UserTracker do
 
   def remove_user(user_id, type) when type in @user_types do
     GenServer.cast(__MODULE__, {:remove_user, type, user_id})
-  end
-
-  def get_match_for_user(user_id) do
-    GenServer.call(__MODULE__, :get_searching_users, :infinity)
-    |> MapSet.difference(MapSet.new([user_id]))
-    |> Enum.take(1)
-    |> case do
-      [matched_user_id] ->
-        GenServer.call(__MODULE__, {:remove_matched_users, user_id, matched_user_id}, :infinity)
-        IO.inspect("Returning #{inspect(matched_user_id)}")
-        matched_user_id
-
-      _ ->
-        nil
-    end
   end
 
   def handle_cast({:add_user, user_type, user_id}, state) when user_type in @user_types do
@@ -55,24 +41,30 @@ defmodule Stranger.UserTracker do
     {:reply, Enum.count(active_users), state}
   end
 
-  def handle_call(:get_searching_users, _from, %{searching_users: searching_users} = state) do
-    {:reply, searching_users, state}
-  end
+  def handle_info(:matching, %{searching_users: searching_users} = state) do
+    Process.send_after(self(), :matching, 1000)
+    searching_users
+    |> Enum.take(2)
+    |> case do
+      [user_1, user_2] ->
+        users =
+          searching_users
+          |> MapSet.delete(user_1)
+          |> MapSet.delete(user_2)
 
-  def handle_call(
-        {:remove_matched_users, user_1, user_2},
-        _from,
-        %{searching_users: searching_users} = state
-      ) do
-    users =
-      searching_users
-      |> MapSet.delete(user_1)
-      |> MapSet.delete(user_2)
+        Phoenix.PubSub.broadcast!(Stranger.PubSub, @topic, {:matched, [user_1, user_2]})
+        {:noreply, Map.put(state, :searching_users, users)}
 
-    {:noreply, Map.put(state, :searching_users, users)}
+      _ ->
+        {:noreply, state}
+    end
   end
 
   defp broadcast_active_users_count(state) do
-    Phoenix.PubSub.broadcast!(Stranger.PubSub, @topic, Enum.count(state))
+    Phoenix.PubSub.broadcast!(
+      Stranger.PubSub,
+      @topic,
+      {:active_users, Enum.count(state)}
+    )
   end
 end
