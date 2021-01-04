@@ -14,7 +14,7 @@ defmodule Stranger.Application do
       # Start the Endpoint (http/https)
       StrangerWeb.Endpoint,
       {Mongo, mongo_db()},
-      Stranger.ActiveUserTracker
+      Stranger.UserTracker
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

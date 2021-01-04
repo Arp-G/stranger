@@ -59,6 +59,12 @@ defmodule StrangerWeb.RegistrationFormComponent do
                 <p><%= error_tag fp, :dob %></p>
               </p>
 
+            <p>
+              <%= label fp, :country %>
+              <%= text_input fp, :country %>
+              <p><%= error_tag fp, :country %></p>
+            </p>
+
               <p>
                 <%= label fp, :bio %>
                 <%= textarea fp, :bio %>

@@ -10,14 +10,16 @@ defmodule Stranger.Accounts.Profile do
     field(:last_name, :string)
     field(:avatar, Avatar.Type)
     field(:dob, :utc_datetime)
+    field(:country, :string)
     field(:bio, :string)
   end
 
   def changeset(user_profile, attrs) do
     user_profile
-    |> cast(sanitize_dob(attrs), [:first_name, :last_name, :dob, :bio])
+    |> cast(sanitize_dob(attrs), [:first_name, :last_name, :dob, :country, :bio])
     |> validate_required([:first_name, :last_name])
-    |> validate_length(:bio, max: 100)
+    |> validate_length(:country, max: 50)
+    |> validate_length(:bio, max: 200)
     |> validate_change(:dob, &validate_date_not_in_the_future/2)
   end
 
