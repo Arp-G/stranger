@@ -24,7 +24,6 @@ defmodule StrangerWeb.DashboardLive do
   @impl true
   def handle_event("search", _args, %{assigns: %{user_id: user_id}} = socket) do
     UserTracker.add_user(user_id, :searching_users)
-    send(self(), :search_tick)
     {:noreply, assign(socket, status: :searching)}
   end
 
@@ -32,13 +31,6 @@ defmodule StrangerWeb.DashboardLive do
   def handle_event("stop_search", _args, %{assigns: %{user_id: user_id}} = socket) do
     UserTracker.remove_user(user_id, :searching_users)
     {:noreply, assign(socket, status: :idle)}
-  end
-
-  @impl true
-  def handle_info(:search_tick, %{assigns: %{status: status}} = socket) do
-    if(status == :searching, do: Process.send_after(self(), :search_tick, 1000))
-
-    {:noreply, socket}
   end
 
   @impl true
@@ -81,6 +73,3 @@ defmodule StrangerWeb.DashboardLive do
     end
   end
 end
-
-# p = "live_view_upload-1609522426-906582229084086-5"
-# Avatar.url({user.profile.avatar, user}, signed: true)

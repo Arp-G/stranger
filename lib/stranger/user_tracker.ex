@@ -3,6 +3,8 @@ defmodule Stranger.UserTracker do
 
   @topic "active_users"
   @user_types [:active_users, :searching_users]
+  # Search for a match every 500ms
+  @match_search_interval 500
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :no_args, name: __MODULE__)
@@ -34,7 +36,7 @@ defmodule Stranger.UserTracker do
   def handle_cast({:remove_user, user_type, user_id}, state) when user_type in @user_types do
     users = MapSet.delete(state[user_type], user_id)
     if user_type == :active_users, do: broadcast_active_users_count(users)
-    {:noreply, Map.put(state, :searching_users, users)}
+    {:noreply, Map.put(state, user_type, users)}
   end
 
   def handle_call(:get_active_users_count, _from, %{active_users: active_users} = state) do
@@ -42,8 +44,10 @@ defmodule Stranger.UserTracker do
   end
 
   def handle_info(:matching, %{searching_users: searching_users} = state) do
-    Process.send_after(self(), :matching, 1000)
+    Process.send_after(self(), :matching, @match_search_interval)
+
     searching_users
+    |> Enum.shuffle()
     |> Enum.take(2)
     |> case do
       [user_1, user_2] ->
