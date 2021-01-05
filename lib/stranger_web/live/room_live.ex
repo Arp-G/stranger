@@ -5,22 +5,34 @@ defmodule StrangerWeb.RoomLive do
 
   @impl Phoenix.LiveView
   def mount(%{"room_id" => room_id, "user_id" => user_id} = _params, _session, socket) do
+    user_id = BSON.ObjectId.decode!(user_id)
+    room_id = BSON.ObjectId.decode!(room_id)
+
     socket =
       socket
       |> assign(:user_id, user_id)
       |> assign(:room_id, room_id)
       |> assign(:room, nil)
 
-    if connected?(socket) do
-      case RoomMaster.join_room(room_id, user_id, self()) do
-        {:ok, room} ->
-          {:ok, assign(socket, :room, room)}
+    if Stranger.Conversations.check_if_user_belongs_to_conversation(user_id, room_id) do
+      if connected?(socket) do
+        case RoomMaster.join_room(room_id, user_id, self()) do
+          {:ok, room} ->
+            {:ok, assign(socket, :room, room)}
 
-        {:error, reason} ->
-          {:ok, socket |> put_flash(:error, reason) |> redirect(to: "/dashboard")}
+          {:error, reason} ->
+            {:ok, socket |> put_flash(:error, reason) |> redirect(to: "/dashboard")}
+        end
+      else
+        {:ok, socket}
       end
     else
-      {:ok, socket}
+      {
+        :ok,
+        socket
+        |> put_flash(:error, "You are not allowed to join this room")
+        |> redirect(to: "/dashboard")
+      }
     end
   end
 

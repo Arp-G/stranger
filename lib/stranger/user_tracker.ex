@@ -56,7 +56,13 @@ defmodule Stranger.UserTracker do
           |> MapSet.delete(user_1)
           |> MapSet.delete(user_2)
 
-        Phoenix.PubSub.broadcast!(Stranger.PubSub, @topic, {:matched, [user_1, user_2]})
+        conversation_id =
+          Stranger.Conversations.create_conversation(%{
+            participant_one_id: user_1,
+            participant_two_id: user_2
+          })
+
+        Phoenix.PubSub.broadcast!(Stranger.PubSub, @topic, {:matched, [user_1, user_2, conversation_id]})
         {:noreply, Map.put(state, :searching_users, users)}
 
       _ ->

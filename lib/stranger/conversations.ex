@@ -1,20 +1,80 @@
 defmodule Stranger.Conversations do
-  alias Stranger.Conversations.Conversation
+  def find_or_create_converastion(participant_one_id, participant_two_id) do
+    find_lastest_conversation_for(participant_one_id, participant_one_id) ||
+      create_conversation(%{
+        participant_one_id: participant_one_id,
+        participant_two_id: participant_two_id
+      })
+  end
 
-  def create_conversation(attrs) do
-    attrs
-    |> Conversation.changeset()
+  def check_if_user_belongs_to_conversation(user_id, conversation_id) do
+    Mongo.find(
+      :mongo,
+      "conversations",
+      %{
+        _id: conversation_id,
+        "$or": [
+          %{participant_one_id: user_id},
+          %{participant_two_id: user_id}
+        ]
+      }
+    )
+    |> Enum.take(1) != []
+  end
+
+  def create_conversation(%{
+        participant_one_id: participant_one_id,
+        participant_two_id: participant_two_id
+      }) do
+    {
+      :ok,
+      %Mongo.InsertOneResult{
+        acknowledged: true,
+        inserted_id: conversation_id
+      }
+    } =
+      Mongo.insert_one(:mongo, "conversations", %{
+        participant_one_id: participant_one_id,
+        participant_two_id: participant_two_id,
+        started_at: DateTime.utc_now()
+      })
+
+    conversation_id
+  end
+
+  # Find the latest unended conversation for two participants
+  def find_lastest_conversation_for(participant_one, pariticipant_two) do
+    Mongo.find(
+      :mongo,
+      "conversations",
+      %{
+        "$and" => [
+          %{
+            "$or" => [
+              %{
+                "$and" => [
+                  %{"participant_one_id" => participant_one},
+                  %{"participant_two_id" => pariticipant_two}
+                ]
+              },
+              %{
+                "$and" => [
+                  %{"participant_one_id" => pariticipant_two},
+                  %{"participant_two_id" => participant_one}
+                ]
+              }
+            ]
+          },
+          %{"ended_at" => nil}
+        ]
+      },
+      sort: %{"_id" => -1},
+      limit: 1
+    )
+    |> Enum.take(1)
     |> case do
-      %Ecto.Changeset{valid?: true} = changset ->
-        args_map =
-          changset
-          |> Ecto.Changeset.apply_changes()
-          |> Conversation.from_struct()
-
-        Mongo.insert_one(:mongo, "conversations", args_map)
-
-      changeset ->
-        changeset
+      [conversation_id] -> conversation_id
+      [] -> nil
     end
   end
 

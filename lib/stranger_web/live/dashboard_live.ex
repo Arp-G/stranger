@@ -40,24 +40,26 @@ defmodule StrangerWeb.DashboardLive do
   end
 
   @impl true
-  def handle_info({:matched, [user_1, user_2]}, %{assigns: %{user_id: user_id}} = socket) do
+  def handle_info(
+        {:matched, [user_1, user_2, conversation_id]},
+        %{assigns: %{user_id: user_id}} = socket
+      ) do
     if user_id in [user_1, user_2] do
-      matched_user = if(user_id == user_1, do: user_2, else: user_1)
-      Process.send_after(self(), {:redirect_after_match, matched_user}, 3000)
-      {:noreply, assign(socket, status: {:matched, matched_user})}
+      Process.send_after(self(), {:redirect_after_match, conversation_id}, 3000)
+      {:noreply, assign(socket, status: {:matched, conversation_id})}
     else
       {:noreply, socket}
     end
   end
 
-  def handle_info({:redirect_after_match, matched_user}, %{assigns: %{user_id: user_id}} = socket) do
+  def handle_info({:redirect_after_match, conversation_id}, socket) do
     socket =
       push_redirect(socket,
         to:
           Routes.room_path(
             socket,
             :index,
-            get_room_name(user_id, matched_user),
+            BSON.ObjectId.encode!(conversation_id),
             BSON.ObjectId.encode!(socket.assigns.user_id)
           )
       )
@@ -78,9 +80,9 @@ defmodule StrangerWeb.DashboardLive do
           <button class="btn btn-primary" phx-click="stop_search">Stop Searching</button>
         """
 
-      {:matched, matched_user_id} ->
+      {:matched, conversation_id} ->
         ~E"""
-          Found a match with <%= inspect(matched_user_id) %>
+          Found room <%= inspect(conversation_id) %>
         """
 
       _ ->

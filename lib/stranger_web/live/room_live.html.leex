@@ -8,7 +8,7 @@
     </div>
   </div>
   <%= for user <- others_in_room(@room, @user_id) do %>
-    <div id="user-<%= user.id %>" style="margin-left: 10px">
+    <div id="user-<%= BSON.ObjectId.encode!(user.id) %>" style="margin-left: 10px">
       <%= user.id %><br>
       <%= if is_nil(user.stream_id) do %>
         Connecting to Video...
