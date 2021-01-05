@@ -2,6 +2,7 @@ defmodule StrangerWeb.DashboardLive do
   use StrangerWeb, :live_view
   use Phoenix.HTML
   alias Stranger.UserTracker
+  alias StrangerWeb.LiveHelpers
 
   @topic "active_users"
 
@@ -42,10 +43,26 @@ defmodule StrangerWeb.DashboardLive do
   def handle_info({:matched, [user_1, user_2]}, %{assigns: %{user_id: user_id}} = socket) do
     if user_id in [user_1, user_2] do
       matched_user = if(user_id == user_1, do: user_2, else: user_1)
+      Process.send_after(self(), {:redirect_after_match, matched_user}, 3000)
       {:noreply, assign(socket, status: {:matched, matched_user})}
     else
       {:noreply, socket}
     end
+  end
+
+  def handle_info({:redirect_after_match, matched_user}, %{assigns: %{user_id: user_id}} = socket) do
+    socket =
+      push_redirect(socket,
+        to:
+          Routes.room_path(
+            socket,
+            :index,
+            get_room_name(user_id, matched_user),
+            BSON.ObjectId.encode!(socket.assigns.user_id)
+          )
+      )
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -53,7 +70,7 @@ defmodule StrangerWeb.DashboardLive do
     UserTracker.remove_user(user_id, :active_users)
   end
 
-  def dashboard_status(status) do
+  defp dashboard_status(status) do
     case status do
       :searching ->
         ~E"""

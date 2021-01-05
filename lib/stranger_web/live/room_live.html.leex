@@ -1,0 +1,27 @@
+<h1><%= @room_id %></h1>
+<%= if !is_nil(@room) do %>
+<div style="display: flex;">
+  <div>
+    <%= @user_id %> (you)<br>
+    <div phx-update="ignore">
+      <div phx-hook="PublisherInit" id="publisher-div"></div>
+    </div>
+  </div>
+  <%= for user <- others_in_room(@room, @user_id) do %>
+    <div id="user-<%= user.id %>" style="margin-left: 10px">
+      <%= user.id %><br>
+      <%= if is_nil(user.stream_id) do %>
+        Connecting to Video...
+      <% else %>
+        <div phx-update="ignore">
+          <div id="subscriber-div-<%= user.stream_id %>"></div><br>
+        </div>
+      <% end %>
+      <br>
+    </div>
+  <% end %>
+</div>
+
+<br><br>
+  <%= inspect(@room) %>
+<% end %>

@@ -30,6 +30,7 @@ defmodule StrangerWeb.Router do
     pipe_through :auth
 
     live "/dashboard", DashboardLive, :index
+    live "/room/:room_id/:user_id", RoomLive, :index
   end
 
   # Other scopes may use custom stacks.
