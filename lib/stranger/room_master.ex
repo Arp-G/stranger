@@ -25,12 +25,12 @@ defmodule Stranger.RoomMaster do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def join_room(room_name, username, pid) do
-    GenServer.call(__MODULE__, {:join_room, room_name, username, pid})
+  def join_room(room_id, user_id, pid) do
+    GenServer.call(__MODULE__, {:join_room, room_id, user_id, pid})
   end
 
-  def store_stream_id(room_name, username, stream_id) do
-    GenServer.call(__MODULE__, {:store_stream_id, room_name, username, stream_id})
+  def store_stream_id(room_id, user_id, stream_id) do
+    GenServer.call(__MODULE__, {:store_stream_id, room_id, user_id, stream_id})
   end
 
   def init(:ok) do
@@ -95,7 +95,10 @@ defmodule Stranger.RoomMaster do
     |> case do
       {[], _} ->
         Logger.info("creating room #{room_id}")
-        {%{id: room_id, users: [], session_id: generate_session_id()}, rooms}
+        session_id = generate_session_id()
+        Stranger.Conversations.update_conversation_with_session(room_id, session_id)
+
+        {%{id: room_id, users: [], session_id: session_id}, rooms}
 
       {[room], other_rooms} ->
         {room, other_rooms}

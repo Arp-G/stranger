@@ -58,5 +58,5 @@ defmodule StrangerWeb.RoomLive do
 
   defp user_in_room(%{users: users}, user_id), do: Enum.find(users, &(&1.id == user_id))
 
-  defp others_in_room(%{users: users}, user_id), do: Enum.reject(users, &(&1.id == user_id))
+  defp stranger_in_room(%{users: users}, user_id), do: Enum.reject(users, &(&1.id == user_id)) |> List.first
 end

@@ -89,3 +89,28 @@
   display: block;
   margin: -1rem 0 2rem;
 }
+
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+.subscriber {
+  position: absolute !important;
+  left: 0;
+  top: 0;
+  width: 100%  !important;
+  height: 100% !important;
+  z-index: 10;
+}
+
+#publisher-div {
+  position: absolute;
+  width: 360px;
+  height: 240px;
+  bottom: 10px;
+  left: 10px;
+  z-index: 100;
+  border: 3px solid white;
+  border-radius: 3px;
+}

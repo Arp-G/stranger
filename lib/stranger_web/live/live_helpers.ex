@@ -11,14 +11,4 @@ defmodule StrangerWeb.LiveHelpers do
       {:error, _} -> date_string
     end
   end
-
-  def get_room_name(user_1, user_2) do
-    room =
-      [user_1, user_2]
-      |> Enum.map(&BSON.ObjectId.encode!(&1))
-      |> Enum.sort()
-      |> Enum.join()
-
-    :crypto.hash(:md5, room) |> Base.encode16()
-  end
 end

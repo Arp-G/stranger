@@ -8,6 +8,7 @@ defmodule Stranger.Conversations.Conversation do
     field(:_id, :string)
     field(:participant_one_id, :string)
     field(:participant_two_id, :string)
+    field(:session_id, :string)
     field(:started_at, :utc_datetime_usec)
     field(:ended_at, :utc_datetime_usec)
   end

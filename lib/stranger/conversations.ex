@@ -42,6 +42,12 @@ defmodule Stranger.Conversations do
     conversation_id
   end
 
+  def update_conversation_with_session(conversation_id, session_id) do
+    Mongo.update_one!(:mongo, "conversations", %{_id: conversation_id}, %{
+      "$set": %{session_id: session_id}
+    })
+  end
+
   # Find the latest unended conversation for two participants
   def find_lastest_conversation_for(participant_one, pariticipant_two) do
     Mongo.find(
