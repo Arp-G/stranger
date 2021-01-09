@@ -22,9 +22,9 @@ defmodule Stranger.RoomMaster do
 
   require Logger
 
-  @cleanup_job_interval 60000
+  @cleanup_job_interval 1000
   # 1hr
-  @max_room_duration 3600
+  @max_room_duration 10
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -39,39 +39,28 @@ defmodule Stranger.RoomMaster do
   end
 
   def leave_room(room_id) do
-    GenServer.call(__MODULE__, {:end_meet, room_id})
+    GenServer.cast(__MODULE__, {:end_meet, room_id, "Room closed: A party has disconnected"})
   end
 
   def init(:ok) do
-    Process.send_after(self(), :cleanup_job, 0)
+    tick()
     {:ok, %{rooms: []}}
   end
 
   def handle_info(:cleanup_job, %{rooms: rooms}) do
-    IO.inspect("Cleanup job running")
-
     rooms =
       rooms
-      |> Enum.reject(fn %{users: users, created_at: created_at} = room ->
-        time_up =
-          created_at
-          |> DateTime.add(@max_room_duration)
-          |> DateTime.compare(DateTime.utc_now())
-          |> case do
-            :gt -> true
-            :lt -> false
-          end
-
-        if time_up || Enum.any?(users, &(!Process.alive?(&1.pid))) do
-          IO.inspect("Rejecting room #{room.id}")
-          GenServer.call(__MODULE__, {:end_meet, room.id})
-          true
-        else
-          false
+      |> Enum.reject(fn %{users: users, created_at: created_at} ->
+        created_at
+        |> DateTime.add(@max_room_duration)
+        |> DateTime.compare(DateTime.utc_now())
+        |> case do
+          :lt -> kick_users(users, "Room closed: Maximum room time exceeded")
+          :gt -> false
         end
       end)
 
-    Process.send_after(self(), :cleanup_job, @cleanup_job_interval) # ERROR ! (EXIT) process attempted to call itself
+    tick()
 
     {:noreply, %{rooms: rooms}}
   end
@@ -125,19 +114,25 @@ defmodule Stranger.RoomMaster do
     {:reply, :ok, %{state | rooms: [room | other_rooms]}}
   end
 
-  def handle_call({:end_meet, room_id}, _, %{rooms: rooms} = state) do
-    IO.puts("Terminate callback handled")
-
-    case Enum.find(rooms, &(&1.id == room_id)) do
+  def handle_cast({:end_meet, room_id, reason}, %{rooms: rooms} = state) do
+    rooms
+    |> Enum.find(&(&1.id == room_id))
+    |> case do
       %{users: users} ->
-        Enum.each(users, &send(&1.pid, :end_meeting))
+        kick_users(users, reason)
 
-        {:noreply, :ok, %{state | rooms: Enum.reject(rooms, &(&1.id == room_id))}}
+        {:noreply, %{state | rooms: Enum.reject(rooms, &(&1.id == room_id))}}
 
       nil ->
         {:noreply, state}
     end
   end
+
+  defp kick_users(users, reason) do
+    Enum.each(users, &send(&1.pid, {:end_meeting, reason}))
+  end
+
+  defp tick, do: Process.send_after(self(), :cleanup_job, @cleanup_job_interval)
 
   defp get_or_create_room(rooms, room_id) do
     rooms

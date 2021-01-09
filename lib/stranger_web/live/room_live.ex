@@ -42,15 +42,11 @@ defmodule StrangerWeb.RoomLive do
   end
 
   @impl Phoenix.LiveView
-  def handle_info({:end_meeting, room}, socket) do
-    IO.puts "Terminate callback received"
+  def handle_info({:end_meeting, reason}, socket) do
     {:noreply,
-     {
-       :ok,
-       socket
-       |> put_flash(:info, "The meeting has ended")
-       |> redirect(to: "/dashboard")
-     }}
+     socket
+     |> put_flash(:info, reason)
+     |> redirect(to: "/dashboard")}
   end
 
   @impl Phoenix.LiveView
@@ -67,7 +63,6 @@ defmodule StrangerWeb.RoomLive do
 
   @impl Phoenix.LiveView
   def terminate(_reason, %{assigns: %{room_id: room_id}} = _socket) do
-    IO.puts "Terminate callback"
     RoomMaster.leave_room(room_id)
   end
 
