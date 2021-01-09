@@ -1,18 +1,14 @@
 defmodule StrangerWeb.RoomLive do
   use StrangerWeb, :live_view
 
-  alias Stranger.RoomMaster
+  alias Stranger.{RoomMaster, Accounts}
 
   @impl Phoenix.LiveView
   def mount(%{"room_id" => room_id, "user_id" => user_id} = _params, _session, socket) do
     user_id = BSON.ObjectId.decode!(user_id)
     room_id = BSON.ObjectId.decode!(room_id)
 
-    socket =
-      socket
-      |> assign(:user_id, user_id)
-      |> assign(:room_id, room_id)
-      |> assign(:room, nil)
+    socket = assign(socket, user_id: user_id, room_id: room_id, room: nil, stranger: nil)
 
     if Stranger.Conversations.check_if_user_belongs_to_conversation(user_id, room_id) do
       if connected?(socket) do
@@ -57,7 +53,17 @@ defmodule StrangerWeb.RoomLive do
 
   @impl Phoenix.LiveView
   def handle_info({:room_updated, room}, socket) do
-    {:noreply, assign(socket, :room, room)}
+    stranger =
+      case room.users do
+        [user1, user2] ->
+          if(socket.assigns.user_id == user1.id, do: user2.id, else: user1.id)
+          |> Accounts.get_user()
+
+        _ ->
+          nil
+      end
+
+    {:noreply, assign(socket, room: room, stranger: stranger)}
   end
 
   @impl Phoenix.LiveView
