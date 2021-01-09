@@ -10,7 +10,8 @@ defmodule Stranger.RoomMaster do
             id: "5feb60a50bbd4a581689424b",
             token: "abcdefg",
             pid: liveview_pid,
-            stream_id: "asdf1234"
+            stream_id: "asdf1234",
+            created_at: ~U[2021-01-08 20:24:47.914000Z]
           }
         ]
       }
@@ -20,6 +21,10 @@ defmodule Stranger.RoomMaster do
   use GenServer
 
   require Logger
+
+  @cleanup_job_interval 60000
+  # 1hr
+  @max_room_duration 3600
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -33,13 +38,45 @@ defmodule Stranger.RoomMaster do
     GenServer.call(__MODULE__, {:store_stream_id, room_id, user_id, stream_id})
   end
 
+  def leave_room(room_id) do
+    GenServer.call(__MODULE__, {:end_meet, room_id})
+  end
+
   def init(:ok) do
+    Process.send_after(self(), :cleanup_job, 0)
     {:ok, %{rooms: []}}
   end
 
-  def handle_call({:join_room, room_id, user_id, live_view_pid}, _, %{rooms: rooms} = state) do
-    rooms = cleanup_rooms(rooms)
+  def handle_info(:cleanup_job, %{rooms: rooms}) do
+    IO.inspect("Cleanup job running")
 
+    rooms =
+      rooms
+      |> Enum.reject(fn %{users: users, created_at: created_at} = room ->
+        time_up =
+          created_at
+          |> DateTime.add(@max_room_duration)
+          |> DateTime.compare(DateTime.utc_now())
+          |> case do
+            :gt -> true
+            :lt -> false
+          end
+
+        if time_up || Enum.any?(users, &(!Process.alive?(&1.pid))) do
+          IO.inspect("Rejecting room #{room.id}")
+          GenServer.call(__MODULE__, {:end_meet, room.id})
+          true
+        else
+          false
+        end
+      end)
+
+    Process.send_after(self(), :cleanup_job, @cleanup_job_interval) # ERROR ! (EXIT) process attempted to call itself
+
+    {:noreply, %{rooms: rooms}}
+  end
+
+  def handle_call({:join_room, room_id, user_id, live_view_pid}, _, %{rooms: rooms} = state) do
     {%{users: existing_users, session_id: session_id} = room, other_rooms} =
       get_or_create_room(rooms, room_id)
 
@@ -74,7 +111,6 @@ defmodule Stranger.RoomMaster do
   end
 
   def handle_call({:store_stream_id, room_id, user_id, stream_id}, _, %{rooms: rooms} = state) do
-    rooms = cleanup_rooms(rooms)
     {[%{users: users} = room], other_rooms} = Enum.split_with(rooms, &(&1.id == room_id))
 
     users =
@@ -89,6 +125,20 @@ defmodule Stranger.RoomMaster do
     {:reply, :ok, %{state | rooms: [room | other_rooms]}}
   end
 
+  def handle_call({:end_meet, room_id}, _, %{rooms: rooms} = state) do
+    IO.puts("Terminate callback handled")
+
+    case Enum.find(rooms, &(&1.id == room_id)) do
+      %{users: users} ->
+        Enum.each(users, &send(&1.pid, :end_meeting))
+
+        {:noreply, :ok, %{state | rooms: Enum.reject(rooms, &(&1.id == room_id))}}
+
+      nil ->
+        {:noreply, state}
+    end
+  end
+
   defp get_or_create_room(rooms, room_id) do
     rooms
     |> Enum.split_with(&(&1.id == room_id))
@@ -98,28 +148,10 @@ defmodule Stranger.RoomMaster do
         session_id = generate_session_id()
         Stranger.Conversations.update_conversation_with_session(room_id, session_id)
 
-        {%{id: room_id, users: [], session_id: session_id}, rooms}
+        {%{id: room_id, users: [], session_id: session_id, created_at: DateTime.utc_now()}, rooms}
 
       {[room], other_rooms} ->
         {room, other_rooms}
-    end
-  end
-
-  defp cleanup_rooms(rooms) do
-    rooms
-    |> Enum.map(&remove_inactive_users/1)
-    |> Enum.reject(&Enum.empty?(&1.users))
-  end
-
-  defp remove_inactive_users(%{users: users} = room) do
-    case Enum.split_with(users, &Process.alive?(&1.pid)) do
-      {_, []} ->
-        room
-
-      {active, _inactive} ->
-        room = %{room | users: active}
-        Enum.each(active, &send(&1.pid, {:room_updated, room}))
-        room
     end
   end
 

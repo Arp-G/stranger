@@ -42,14 +42,33 @@ defmodule StrangerWeb.RoomLive do
   end
 
   @impl Phoenix.LiveView
+  def handle_info({:end_meeting, room}, socket) do
+    IO.puts "Terminate callback received"
+    {:noreply,
+     {
+       :ok,
+       socket
+       |> put_flash(:info, "The meeting has ended")
+       |> redirect(to: "/dashboard")
+     }}
+  end
+
+  @impl Phoenix.LiveView
   def handle_event("get_publish_info", _, socket) do
     %{token: token} = get_me(socket)
     {:reply, %{key: get_key(), token: token, session_id: socket.assigns.room.session_id}, socket}
   end
 
+  @impl Phoenix.LiveView
   def handle_event("store_stream_id", %{"stream_id" => stream_id}, socket) do
     RoomMaster.store_stream_id(socket.assigns.room_id, socket.assigns.user_id, stream_id)
     {:noreply, socket}
+  end
+
+  @impl Phoenix.LiveView
+  def terminate(_reason, %{assigns: %{room_id: room_id}} = _socket) do
+    IO.puts "Terminate callback"
+    RoomMaster.leave_room(room_id)
   end
 
   defp get_key, do: Application.fetch_env!(:ex_opentok, :key)
@@ -58,5 +77,6 @@ defmodule StrangerWeb.RoomLive do
 
   defp user_in_room(%{users: users}, user_id), do: Enum.find(users, &(&1.id == user_id))
 
-  defp stranger_in_room(%{users: users}, user_id), do: Enum.reject(users, &(&1.id == user_id)) |> List.first
+  defp stranger_in_room(%{users: users}, user_id),
+    do: Enum.reject(users, &(&1.id == user_id)) |> List.first()
 end
