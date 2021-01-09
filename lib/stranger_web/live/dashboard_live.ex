@@ -2,7 +2,6 @@ defmodule StrangerWeb.DashboardLive do
   use StrangerWeb, :live_view
   use Phoenix.HTML
   alias Stranger.UserTracker
-  alias StrangerWeb.LiveHelpers
 
   @topic "active_users"
 

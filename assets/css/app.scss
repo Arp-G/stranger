@@ -100,7 +100,7 @@ html, body {
   left: 0;
   top: 0;
   width: 100%  !important;
-  height: 80% !important;
+  height: 60% !important;
   z-index: 10;
 }
 
@@ -127,4 +127,20 @@ html, body {
   bottom: 10px;
   left: 70%;
   z-index: 101;
+}
+
+#chat_box {
+  position: absolute;
+  bottom: 10px;
+  left: 30%;
+  z-index: 101;
+  height: 250px;
+  width: 250px;
+  border: 2px solid black;
+  overflow: scroll;
+
+  #messages {
+    height: 200px;
+    border: 2px solid blue;
+  }
 }

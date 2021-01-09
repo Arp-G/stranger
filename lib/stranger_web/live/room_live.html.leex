@@ -29,3 +29,5 @@
 <div id="stranger_details">
   <%= inspect @stranger %>
 </div>
+
+<%= live_component @socket, StrangerWeb.ChatComponent, message_changeset: @message_changeset, messages: @messages %>

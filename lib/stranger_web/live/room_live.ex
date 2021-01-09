@@ -1,20 +1,31 @@
 defmodule StrangerWeb.RoomLive do
   use StrangerWeb, :live_view
-
-  alias Stranger.{RoomMaster, Accounts}
+  alias Stranger.{RoomMaster, Accounts, Messages, Messages.Message}
 
   @impl Phoenix.LiveView
   def mount(%{"room_id" => room_id, "user_id" => user_id} = _params, _session, socket) do
     user_id = BSON.ObjectId.decode!(user_id)
     room_id = BSON.ObjectId.decode!(room_id)
 
-    socket = assign(socket, user_id: user_id, room_id: room_id, room: nil, stranger: nil)
+    socket =
+      assign(socket,
+        user_id: user_id,
+        room_id: room_id,
+        room: nil,
+        stranger: nil,
+        message_changeset: Message.changeset(%{}),
+        messages: []
+      )
 
     if Stranger.Conversations.check_if_user_belongs_to_conversation(user_id, room_id) do
       if connected?(socket) do
+        room_id
+        |> get_message_topic()
+        |> StrangerWeb.Endpoint.subscribe()
+
         case RoomMaster.join_room(room_id, user_id, self()) do
           {:ok, room} ->
-            {:ok, assign(socket, :room, room)}
+            {:ok, assign(socket, room: room)}
 
           {:error, reason} ->
             {:ok, socket |> put_flash(:error, reason) |> redirect(to: "/dashboard")}
@@ -52,6 +63,45 @@ defmodule StrangerWeb.RoomLive do
   end
 
   @impl Phoenix.LiveView
+  def handle_event(
+        "send_message",
+        %{"message" => %{"content" => message}},
+        %{assigns: assigns} = socket
+      ) do
+    message = %{
+      id: nil,
+      conversation_id: assigns.room_id,
+      sender_id: assigns.user_id,
+      content: message
+    }
+
+    socket =
+      message
+      |> Messages.create_message()
+      |> case do
+        {:ok,
+         %Mongo.InsertOneResult{
+           acknowledged: true,
+           inserted_id: id
+         }} ->
+          Phoenix.PubSub.broadcast!(
+            Stranger.PubSub,
+            get_message_topic(assigns.room_id),
+            {:got_message, message}
+          )
+
+          assign(socket,
+            messages: [%{message | id: id} | assigns.messages]
+          )
+
+        _ ->
+          socket
+      end
+
+    {:noreply, socket}
+  end
+
+  @impl Phoenix.LiveView
   def handle_info({:room_updated, room}, socket) do
     stranger =
       case room.users do
@@ -75,6 +125,11 @@ defmodule StrangerWeb.RoomLive do
   end
 
   @impl Phoenix.LiveView
+  def handle_info({:got_message, message}, socket) do
+    {:noreply, assign(socket, messages: [message | socket.assigns.messages])}
+  end
+
+  @impl Phoenix.LiveView
   def terminate(_reason, %{assigns: %{room_id: room_id}} = _socket) do
     RoomMaster.leave_room(room_id)
   end
@@ -87,4 +142,8 @@ defmodule StrangerWeb.RoomLive do
 
   defp stranger_in_room(%{users: users}, user_id),
     do: Enum.reject(users, &(&1.id == user_id)) |> List.first()
+
+  defp get_message_topic(room_id) do
+    "room_chat:#{room_id}"
+  end
 end

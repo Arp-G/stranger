@@ -10,7 +10,7 @@ defmodule Stranger.Conversations.Conversation do
     field(:participant_two_id, :string)
     field(:session_id, :string)
     field(:started_at, :utc_datetime_usec)
-    field(:ended_at, :utc_datetime_usec)
+    field(:utc_datetime_usec)
   end
 
   def changeset(attrs) do
@@ -20,10 +20,10 @@ defmodule Stranger.Conversations.Conversation do
     |> put_change(:started_at, DateTime.utc_now())
   end
 
-    # Override default from_struct
-    def from_struct(conversation) do
-      conversation
-      |> super()
-      |> Map.drop([:_id])
-    end
+  # Override default from_struct
+  def from_struct(conversation) do
+    conversation
+    |> super()
+    |> Map.drop([:_id])
+  end
 end
