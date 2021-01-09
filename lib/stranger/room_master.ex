@@ -20,11 +20,15 @@ defmodule Stranger.RoomMaster do
   """
   use GenServer
 
+  alias Stranger.Conversations
+
   require Logger
 
-  @cleanup_job_interval 1000
-  # 1hr
-  @max_room_duration 10
+  # Every 5 sec
+  @cleanup_job_interval 5000
+
+  # 10min
+  @max_room_duration 600
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -50,12 +54,12 @@ defmodule Stranger.RoomMaster do
   def handle_info(:cleanup_job, %{rooms: rooms}) do
     rooms =
       rooms
-      |> Enum.reject(fn %{users: users, created_at: created_at} ->
-        created_at
+      |> Enum.reject(fn room ->
+        room.created_at
         |> DateTime.add(@max_room_duration)
         |> DateTime.compare(DateTime.utc_now())
         |> case do
-          :lt -> kick_users(users, "Room closed: Maximum room time exceeded")
+          :lt -> room_end_tasks(room, "Room closed: Maximum room time exceeded")
           :gt -> false
         end
       end)
@@ -74,7 +78,7 @@ defmodule Stranger.RoomMaster do
       |> Enum.find(&(&1.id == user_id))
       |> case do
         nil ->
-          Logger.info("adding #{user_id} to #{room_id}")
+          Logger.info("Adding #{user_id} to #{room_id}")
           token = ExOpentok.Token.generate(session_id)
 
           users = [
@@ -118,14 +122,19 @@ defmodule Stranger.RoomMaster do
     rooms
     |> Enum.find(&(&1.id == room_id))
     |> case do
-      %{users: users} ->
-        kick_users(users, reason)
-
-        {:noreply, %{state | rooms: Enum.reject(rooms, &(&1.id == room_id))}}
-
       nil ->
         {:noreply, state}
+
+      room ->
+        room_end_tasks(room, reason)
+        {:noreply, %{state | rooms: Enum.reject(rooms, &(&1.id == room_id))}}
     end
+  end
+
+  defp room_end_tasks(room, reason) do
+    Logger.info("Closing room #{room.id}")
+    kick_users(room.users, reason)
+    Conversations.update_conversation_with_end_time(room.id)
   end
 
   defp kick_users(users, reason) do
@@ -141,7 +150,7 @@ defmodule Stranger.RoomMaster do
       {[], _} ->
         Logger.info("creating room #{room_id}")
         session_id = generate_session_id()
-        Stranger.Conversations.update_conversation_with_session(room_id, session_id)
+        Conversations.update_conversation_with_session(room_id, session_id)
 
         {%{id: room_id, users: [], session_id: session_id, created_at: DateTime.utc_now()}, rooms}
 

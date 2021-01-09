@@ -100,7 +100,7 @@ html, body {
   left: 0;
   top: 0;
   width: 100%  !important;
-  height: 100% !important;
+  height: 80% !important;
   z-index: 10;
 }
 
@@ -113,4 +113,11 @@ html, body {
   z-index: 100;
   border: 3px solid white;
   border-radius: 3px;
+}
+
+#end_meeting_button {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  z-index: 101;
 }

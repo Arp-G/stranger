@@ -37,6 +37,25 @@ defmodule StrangerWeb.RoomLive do
   end
 
   @impl Phoenix.LiveView
+  def handle_event("get_publish_info", _, socket) do
+    %{token: token} = get_me(socket)
+    {:reply, %{key: get_key(), token: token, session_id: socket.assigns.room.session_id}, socket}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("store_stream_id", %{"stream_id" => stream_id}, socket) do
+    RoomMaster.store_stream_id(socket.assigns.room_id, socket.assigns.user_id, stream_id)
+    {:noreply, socket}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("leave_room", _attrs, socket) do
+    RoomMaster.leave_room(socket.assigns.room_id)
+
+    {:noreply, socket}
+  end
+
+  @impl Phoenix.LiveView
   def handle_info({:room_updated, room}, socket) do
     {:noreply, assign(socket, :room, room)}
   end
@@ -47,18 +66,6 @@ defmodule StrangerWeb.RoomLive do
      socket
      |> put_flash(:info, reason)
      |> redirect(to: "/dashboard")}
-  end
-
-  @impl Phoenix.LiveView
-  def handle_event("get_publish_info", _, socket) do
-    %{token: token} = get_me(socket)
-    {:reply, %{key: get_key(), token: token, session_id: socket.assigns.room.session_id}, socket}
-  end
-
-  @impl Phoenix.LiveView
-  def handle_event("store_stream_id", %{"stream_id" => stream_id}, socket) do
-    RoomMaster.store_stream_id(socket.assigns.room_id, socket.assigns.user_id, stream_id)
-    {:noreply, socket}
   end
 
   @impl Phoenix.LiveView
