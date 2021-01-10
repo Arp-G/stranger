@@ -3,12 +3,13 @@ defmodule StrangerWeb.RoomLive do
   alias Stranger.{RoomMaster, Accounts, Messages, Messages.Message}
 
   @impl Phoenix.LiveView
-  def mount(%{"room_id" => room_id, "user_id" => user_id} = _params, _session, socket) do
-    user_id = BSON.ObjectId.decode!(user_id)
+  def mount(%{"room_id" => room_id} = _params, %{"token" => token} = _session, socket) do
+    {:ok, user_id} = StrangerWeb.UserAuth.get_user_id(token)
     room_id = BSON.ObjectId.decode!(room_id)
 
     socket =
       assign(socket,
+        user: Accounts.get_user(user_id),
         user_id: user_id,
         room_id: room_id,
         room: nil,
@@ -17,29 +18,16 @@ defmodule StrangerWeb.RoomLive do
         messages: []
       )
 
-    if Stranger.Conversations.check_if_user_belongs_to_conversation(user_id, room_id) do
-      if connected?(socket) do
-        room_id
-        |> get_message_topic()
-        |> StrangerWeb.Endpoint.subscribe()
+    room_id
+    |> get_message_topic()
+    |> StrangerWeb.Endpoint.subscribe()
 
-        case RoomMaster.join_room(room_id, user_id, self()) do
-          {:ok, room} ->
-            {:ok, assign(socket, room: room)}
+    case RoomMaster.join_room(room_id, user_id, self()) do
+      {:ok, room} ->
+        {:ok, assign(socket, room: room)}
 
-          {:error, reason} ->
-            {:ok, socket |> put_flash(:error, reason) |> redirect(to: "/dashboard")}
-        end
-      else
-        {:ok, socket}
-      end
-    else
-      {
-        :ok,
-        socket
-        |> put_flash(:error, "You are not allowed to join this room")
-        |> redirect(to: "/dashboard")
-      }
+      {:error, reason} ->
+        {:ok, socket |> put_flash(:error, reason) |> redirect(to: "/dashboard")}
     end
   end
 
@@ -70,50 +58,48 @@ defmodule StrangerWeb.RoomLive do
       ) do
     message = %{
       id: nil,
+      name: nil,
       conversation_id: assigns.room_id,
       sender_id: assigns.user_id,
       content: message
     }
 
-    socket =
-      message
-      |> Messages.create_message()
-      |> case do
-        {:ok,
-         %Mongo.InsertOneResult{
-           acknowledged: true,
-           inserted_id: id
-         }} ->
-          Phoenix.PubSub.broadcast!(
-            Stranger.PubSub,
-            get_message_topic(assigns.room_id),
-            {:got_message, message}
-          )
+    message
+    |> Messages.create_message()
+    |> case do
+      {:ok,
+       %Mongo.InsertOneResult{
+         acknowledged: true,
+         inserted_id: id
+       }} ->
+        Phoenix.PubSub.broadcast!(
+          Stranger.PubSub,
+          get_message_topic(assigns.room_id),
+          {:got_message, %{message | id: id, name: get_user_name(socket)}}
+        )
 
-          assign(socket,
-            messages: [%{message | id: id} | assigns.messages]
-          )
-
-        _ ->
-          socket
-      end
+      _ ->
+        nil
+    end
 
     {:noreply, socket}
   end
 
   @impl Phoenix.LiveView
   def handle_info({:room_updated, room}, socket) do
-    stranger =
-      case room.users do
-        [user1, user2] ->
-          if(socket.assigns.user_id == user1.id, do: user2.id, else: user1.id)
-          |> Accounts.get_user()
+    socket = assign(socket, :room, room)
 
-        _ ->
-          nil
-      end
+    if is_nil(socket.assigns.stranger) && Enum.count(room.users) == 2 do
+      [user1, user2] = room.users
 
-    {:noreply, assign(socket, room: room, stranger: stranger)}
+      stranger =
+        if(socket.assigns.user_id == user1.id, do: user2.id, else: user1.id)
+        |> Accounts.get_user()
+
+      {:noreply, assign(socket, :stranger, stranger)}
+    else
+      {:noreply, socket}
+    end
   end
 
   @impl Phoenix.LiveView
@@ -145,5 +131,9 @@ defmodule StrangerWeb.RoomLive do
 
   defp get_message_topic(room_id) do
     "room_chat:#{room_id}"
+  end
+
+  defp get_user_name(%{assigns: %{user: %{profile: %{first_name: fname, last_name: lname}}}}) do
+    "#{fname} #{lname}"
   end
 end

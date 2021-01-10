@@ -5,40 +5,38 @@ defmodule StrangerWeb.DashboardLive do
 
   @topic "active_users"
 
-  @impl true
+  @impl Phoenix.LiveView
   def mount(_params, %{"token" => token} = _session, socket) do
+    {:ok, user_id} = StrangerWeb.UserAuth.get_user_id(token)
     StrangerWeb.Endpoint.subscribe(@topic)
+    UserTracker.add_user(user_id, :active_users)
 
-    with {:ok, user_id} <- StrangerWeb.UserAuth.get_user_id(token) do
-      UserTracker.add_user(user_id, :active_users)
-
-      {:ok,
-       assign(socket,
-         user_id: user_id,
-         status: :idle,
-         active_users: UserTracker.get_active_users_count()
-       )}
-    end
+    {:ok,
+     assign(socket,
+       user_id: user_id,
+       status: :idle,
+       active_users: UserTracker.get_active_users_count()
+     )}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_event("search", _args, %{assigns: %{user_id: user_id}} = socket) do
     UserTracker.add_user(user_id, :searching_users)
     {:noreply, assign(socket, status: :searching)}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_event("stop_search", _args, %{assigns: %{user_id: user_id}} = socket) do
     UserTracker.remove_user(user_id, :searching_users)
     {:noreply, assign(socket, status: :idle)}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_info({:active_users, active_users}, socket) do
     {:noreply, assign(socket, active_users: active_users)}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_info(
         {:matched, [user_1, user_2, conversation_id]},
         %{assigns: %{user_id: user_id}} = socket
@@ -51,6 +49,7 @@ defmodule StrangerWeb.DashboardLive do
     end
   end
 
+  @impl Phoenix.LiveView
   def handle_info({:redirect_after_match, conversation_id}, socket) do
     socket =
       push_redirect(socket,
@@ -58,15 +57,14 @@ defmodule StrangerWeb.DashboardLive do
           Routes.room_path(
             socket,
             :index,
-            BSON.ObjectId.encode!(conversation_id),
-            BSON.ObjectId.encode!(socket.assigns.user_id)
+            BSON.ObjectId.encode!(conversation_id)
           )
       )
 
     {:noreply, socket}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def terminate(_reason, %{assigns: %{user_id: user_id}} = _socket) do
     UserTracker.remove_user(user_id, :active_users)
   end

@@ -8,7 +8,7 @@ defmodule Stranger.Conversations do
   end
 
   def check_if_user_belongs_to_conversation(user_id, conversation_id) do
-    Mongo.find(
+    Mongo.find_one(
       :mongo,
       "conversations",
       %{
@@ -19,7 +19,14 @@ defmodule Stranger.Conversations do
         ]
       }
     )
-    |> Enum.take(1) != []
+  end
+
+  def check_if_conversation_is_active(conversation_id) do
+    Mongo.find_one(
+      :mongo,
+      "conversations",
+      %{_id: conversation_id, ended_at: %{"$exists": false}}
+    )
   end
 
   def create_conversation(%{

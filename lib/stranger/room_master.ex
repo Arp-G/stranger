@@ -27,7 +27,7 @@ defmodule Stranger.RoomMaster do
   # Every 5 sec
   @cleanup_job_interval 5000
 
-  # 10min
+  # 10 min
   @max_room_duration 600
 
   def start_link(_) do
@@ -51,6 +51,7 @@ defmodule Stranger.RoomMaster do
     {:ok, %{rooms: []}}
   end
 
+  # Cleanup dead rooms or max time up rooms
   def handle_info(:cleanup_job, %{rooms: rooms}) do
     rooms =
       rooms
@@ -70,36 +71,52 @@ defmodule Stranger.RoomMaster do
   end
 
   def handle_call({:join_room, room_id, user_id, live_view_pid}, _, %{rooms: rooms} = state) do
-    {%{users: existing_users, session_id: session_id} = room, other_rooms} =
-      get_or_create_room(rooms, room_id)
+    {
+      %{
+        users: existing_users,
+        session_id: session_id
+      } = room,
+      other_rooms
+    } = get_or_create_room(rooms, room_id)
 
-    if Enum.count(existing_users) < 2 do
-      existing_users
-      |> Enum.find(&(&1.id == user_id))
-      |> case do
-        nil ->
-          Logger.info("Adding #{user_id} to #{room_id}")
-          token = ExOpentok.Token.generate(session_id)
+    cond do
+      # Check if room has space: user count < 2
+      Enum.count(existing_users) > 1 ->
+        {:reply, {:error, "Room full"}, state}
 
-          users = [
-            %{id: user_id, pid: live_view_pid, token: token, stream_id: nil} | existing_users
-          ]
+      # Check if room is active: ended_at is nil
+      !Conversations.check_if_conversation_is_active(room.id) ->
+        {:reply, {:error, "Room expired"}, state}
 
-          room = %{room | users: users}
+      # Check if the user is a participant in the room
+      !Conversations.check_if_user_belongs_to_conversation(user_id, room_id) ->
+        {:reply, {:error, "You are not allowed to join this room"}, state}
 
-          # Send room updates to all connected live views
-          Enum.each(existing_users, fn %{pid: live_view_pid} ->
-            send(live_view_pid, {:room_updated, room})
-          end)
+      true ->
+        existing_users
+        |> Enum.find(&(&1.id == user_id))
+        |> case do
+          nil ->
+            Logger.info("Adding #{user_id} to #{room_id}")
+            token = ExOpentok.Token.generate(session_id)
 
-          rooms = [room | other_rooms]
-          {:reply, {:ok, room}, %{state | rooms: rooms}}
+            users = [
+              %{id: user_id, pid: live_view_pid, token: token, stream_id: nil} | existing_users
+            ]
 
-        _ ->
-          {:reply, {:error, "user already in room"}, %{state | rooms: rooms}}
-      end
-    else
-      {:reply, {:error, "Room full"}, state}
+            room = %{room | users: users}
+
+            # Send room updates to all connected live views
+            Enum.each(existing_users, fn %{pid: live_view_pid} ->
+              send(live_view_pid, {:room_updated, room})
+            end)
+
+            rooms = [room | other_rooms]
+            {:reply, {:ok, room}, %{state | rooms: rooms}}
+
+          _ ->
+            {:reply, {:error, "User already in room"}, %{state | rooms: rooms}}
+        end
     end
   end
 
