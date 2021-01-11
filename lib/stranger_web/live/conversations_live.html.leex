@@ -1,0 +1,9 @@
+<ul>
+ <%= for conv <- @conversations do %>
+    <li id="conversation-<%= conv.id %>">
+      <strong> <%= "#{conv.user.profile.first_name} #{conv.user.profile.last_name}"  %> </strong> <br>
+      <strong> Duration: <%= conv.duration %> </strong> <br>
+      <strong> On: <%= inspect conv.on %> </strong>
+    </li>
+  <% end %>
+</ul>

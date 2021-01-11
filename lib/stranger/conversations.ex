@@ -1,4 +1,6 @@
 defmodule Stranger.Conversations do
+  alias Stranger.{Accounts, Accounts.User}
+
   def find_or_create_converastion(participant_one_id, participant_two_id) do
     find_lastest_conversation_for(participant_one_id, participant_one_id) ||
       create_conversation(%{
@@ -61,6 +63,39 @@ defmodule Stranger.Conversations do
     })
   end
 
+  def get_conversations(user) do
+    conversations =
+      Mongo.find(
+        :mongo,
+        "conversations",
+        %{
+          "$and" => [
+            %{
+              "$or" => [
+                %{"participant_one_id" => user},
+                %{"participant_two_id" => user}
+              ]
+            },
+            %{"ended_at" => %{"$exists": true}}
+          ]
+        },
+        sort: %{"ended_at" => -1}
+      )
+      |> Enum.to_list()
+
+    users_map = get_stranger_profiles_from_conversations(conversations, user)
+
+    conversations
+    |> Enum.map(fn conv ->
+      %{
+        id: conv["_id"],
+        on: conv["started_at"],
+        duration: DateTime.diff(conv["ended_at"], conv["started_at"]),
+        user: Map.get(users_map, get_participant(conv, user))
+      }
+    end)
+  end
+
   # Find the latest unended conversation for two participants
   def find_lastest_conversation_for(participant_one, pariticipant_two) do
     Mongo.find(
@@ -104,5 +139,28 @@ defmodule Stranger.Conversations do
       %{_id: conversation_id},
       %{"$set": %{ended_at: DateTime.utc_now()}}
     )
+  end
+
+  defp get_stranger_profiles_from_conversations(conversations, user) do
+    conversations
+    |> Enum.reduce(
+      MapSet.new(),
+      fn conv, users ->
+        MapSet.put(users, get_participant(conv, user))
+      end
+    )
+    |> MapSet.to_list()
+    |> Accounts.get_users()
+    |> Enum.into(%{}, &{&1["_id"], User.to_struct(&1)})
+  end
+
+  defp get_participant(
+         %{
+           "participant_one_id" => p_one,
+           "participant_two_id" => p_two
+         },
+         user
+       ) do
+    if p_one == user, do: p_two, else: p_one
   end
 end

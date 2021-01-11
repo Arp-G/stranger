@@ -6,6 +6,11 @@ defmodule Stranger.Accounts do
     |> User.to_struct()
   end
 
+  def get_users(user_ids) do
+    Mongo.find(:mongo, "users", %{ _id: %{ "$in": user_ids } })
+    |> Enum.to_list()
+  end
+
   def create_user(params) do
     params
     |> User.registration_changeset()

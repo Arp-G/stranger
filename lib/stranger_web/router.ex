@@ -31,6 +31,7 @@ defmodule StrangerWeb.Router do
 
     live "/dashboard", DashboardLive, :index
     live "/room/:room_id", RoomLive, :index
+    live "/conversations", ConversationsLive, :index
   end
 
   # Other scopes may use custom stacks.
