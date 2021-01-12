@@ -14,6 +14,10 @@ defmodule StrangerWeb.Router do
     plug StrangerWeb.UserAuth
   end
 
+  pipeline :conversations do
+    plug StrangerWeb.CorrectConversation
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -30,8 +34,16 @@ defmodule StrangerWeb.Router do
     pipe_through :auth
 
     live "/dashboard", DashboardLive, :index
-    live "/room/:room_id", RoomLive, :index
     live "/conversations", ConversationsLive, :index
+  end
+
+  scope "/", StrangerWeb do
+    pipe_through :browser
+    pipe_through :auth
+    pipe_through :conversations
+
+    live "/room/:conversation_id", RoomLive, :index
+    live "/messages/:conversation_id", MessagesLive, :index
   end
 
   # Other scopes may use custom stacks.

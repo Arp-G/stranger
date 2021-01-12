@@ -88,10 +88,6 @@ defmodule Stranger.RoomMaster do
       !Conversations.check_if_conversation_is_active(room.id) ->
         {:reply, {:error, "Room expired"}, state}
 
-      # Check if the user is a participant in the room
-      !Conversations.check_if_user_belongs_to_conversation(user_id, room_id) ->
-        {:reply, {:error, "You are not allowed to join this room"}, state}
-
       true ->
         existing_users
         |> Enum.find(&(&1.id == user_id))

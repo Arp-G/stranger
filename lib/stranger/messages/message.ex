@@ -5,6 +5,7 @@ defmodule Stranger.Messages.Message do
 
   @primary_key false
   embedded_schema do
+    field(:_id, :string)
     field(:conversation_id, :string)
     field(:sender_id, :string)
     field(:content, :string)
@@ -44,5 +45,6 @@ defmodule Stranger.Messages.Message do
       sender_id:
         if(conv.sender_id, do: BSON.ObjectId.decode!(conv.sender_id), else: conv.sender_id)
     })
+    |> Map.drop([:_id])
   end
 end

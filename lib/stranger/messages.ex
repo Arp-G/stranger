@@ -17,4 +17,14 @@ defmodule Stranger.Messages do
         changeset
     end
   end
+
+  def list_messages_for_conversation(conversation_id) do
+    Mongo.find(
+      :mongo,
+      "messages",
+      %{"conversation_id" => conversation_id},
+      sort: %{"sent_at" => 1}
+    )
+    |> Enum.map(&Message.to_struct/1)
+  end
 end

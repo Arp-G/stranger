@@ -3,7 +3,7 @@ defmodule StrangerWeb.RoomLive do
   alias Stranger.{RoomMaster, Accounts, Messages, Messages.Message}
 
   @impl Phoenix.LiveView
-  def mount(%{"room_id" => room_id} = _params, %{"token" => token} = _session, socket) do
+  def mount(%{"conversation_id" => room_id} = _params, %{"token" => token} = _session, socket) do
     {:ok, user_id} = StrangerWeb.UserAuth.get_user_id(token)
     room_id = BSON.ObjectId.decode!(room_id)
 

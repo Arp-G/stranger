@@ -141,6 +141,17 @@ defmodule Stranger.Conversations do
     )
   end
 
+  def get_stranger_for_conversation(conversation_id, user_id) do
+    Mongo.find_one(
+      :mongo,
+      "conversations",
+      %{
+        "_id" => conversation_id
+      }
+    )
+    |> get_participant(user_id)
+  end
+
   defp get_stranger_profiles_from_conversations(conversations, user) do
     conversations
     |> Enum.reduce(
