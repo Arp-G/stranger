@@ -5,7 +5,7 @@ defmodule StrangerWeb.ConversationsLive do
 
   @impl Phoenix.LiveView
   def mount(_params, %{"token" => token} = _session, socket) do
-    {:ok, user_id} = StrangerWeb.UserAuth.get_user_id(token)
+    {:ok, user_id} = StrangerWeb.Plugs.UserAuth.get_user_id(token)
 
     {:ok,
      assign(socket,

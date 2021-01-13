@@ -8,7 +8,7 @@ defmodule StrangerWeb.MessagesLive do
         %{"token" => token} = _session,
         socket
       ) do
-    {:ok, user_id} = StrangerWeb.UserAuth.get_user_id(token)
+    {:ok, user_id} = StrangerWeb.Plugs.UserAuth.get_user_id(token)
 
     conversation_id = BSON.ObjectId.decode!(conversation_id)
     messages = Messages.list_messages_for_conversation(conversation_id)

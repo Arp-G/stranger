@@ -1,14 +1,14 @@
 defmodule StrangerWeb.HomeLive do
   use StrangerWeb, :live_view
   use Phoenix.HTML
-  alias Stranger.Uploaders.Avatar
+  alias Stranger.{Accounts, Accounts.User, Uploaders.Avatar}
 
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
      socket
      |> assign(%{
-       changeset: Stranger.Accounts.User.registration_changeset(%{}),
+       changeset: User.registration_changeset(%{}),
        section: 0,
        uploaded_files: []
      })
@@ -19,7 +19,7 @@ defmodule StrangerWeb.HomeLive do
   def handle_event("validate", %{"user" => params}, socket) do
     changeset =
       params
-      |> Stranger.Accounts.User.validation_changeset()
+      |> User.validation_changeset()
       # Erros are only shown on form submit action, since we use live view the form is not yet submitted so we have to change the action argument
       |> Map.put(:action, :insert)
 
@@ -30,7 +30,7 @@ defmodule StrangerWeb.HomeLive do
   def handle_event("validate_email", _args, %{assigns: %{changeset: changeset}} = socket) do
     changeset =
       changeset
-      |> Stranger.Accounts.User.validate_unique_email()
+      |> User.validate_unique_email()
       |> Map.put(:action, :insert)
 
     {:noreply, assign(socket, changeset: changeset)}
@@ -38,7 +38,7 @@ defmodule StrangerWeb.HomeLive do
 
   @impl true
   def handle_event("save", %{"user" => user_params}, socket) do
-    case Stranger.Accounts.create_user(user_params) do
+    case Accounts.create_user(user_params) do
       {:ok, user} ->
         case handle_avatar_upload(socket, user) do
           {:error, _} ->
@@ -113,7 +113,7 @@ defmodule StrangerWeb.HomeLive do
       [file_path] ->
         case Avatar.store({file_path, user}) do
           {:ok, img_url} ->
-            Stranger.Accounts.update_avatar(user, img_url)
+            Accounts.update_avatar(user, img_url)
 
           _ ->
             {:error, "Image upload failed"}

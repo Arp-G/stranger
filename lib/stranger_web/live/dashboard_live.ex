@@ -7,7 +7,7 @@ defmodule StrangerWeb.DashboardLive do
 
   @impl Phoenix.LiveView
   def mount(_params, %{"token" => token} = _session, socket) do
-    {:ok, user_id} = StrangerWeb.UserAuth.get_user_id(token)
+    {:ok, user_id} = StrangerWeb.Plugs.UserAuth.get_user_id(token)
     StrangerWeb.Endpoint.subscribe(@topic)
     UserTracker.add_user(user_id, :active_users)
 

@@ -11,11 +11,15 @@ defmodule StrangerWeb.Router do
   end
 
   pipeline :auth do
-    plug StrangerWeb.UserAuth
+    plug StrangerWeb.Plugs.UserAuth
   end
 
   pipeline :conversations do
-    plug StrangerWeb.CorrectConversation
+    plug StrangerWeb.Plugs.CorrectConversation
+  end
+
+  pipeline :redirect_if_logged_in do
+    plug StrangerWeb.Plugs.RedirectIfLoggedInPlug
   end
 
   pipeline :api do
@@ -25,8 +29,14 @@ defmodule StrangerWeb.Router do
   scope "/", StrangerWeb do
     pipe_through :browser
 
-    live "/", HomeLive, :index
     get "/sign_in", SessionController, :sign_in
+  end
+
+  scope "/", StrangerWeb do
+    pipe_through :browser
+    pipe_through :redirect_if_logged_in
+
+    live "/", HomeLive, :index
   end
 
   scope "/", StrangerWeb do

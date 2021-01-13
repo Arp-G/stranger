@@ -1,4 +1,4 @@
-defmodule StrangerWeb.CorrectConversation do
+defmodule StrangerWeb.Plugs.CorrectConversation do
   @moduledoc """
   This module containes a plug to check if the user is a participant in the conversation
   """

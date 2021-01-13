@@ -1,4 +1,4 @@
-defmodule StrangerWeb.UserAuth do
+defmodule StrangerWeb.Plugs.UserAuth do
   @moduledoc """
   This module containes a plug for user authentication.
   """
