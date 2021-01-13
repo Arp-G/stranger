@@ -19,7 +19,13 @@ defmodule StrangerWeb.MessagesLive do
       |> Accounts.get_user()
 
     {:ok,
-     assign(socket, messages: messages, user: Accounts.get_user(user_id), stranger: stranger)}
+     assign(socket,
+       messages: messages,
+       page: 1,
+       conversation_id: conversation_id,
+       user: Accounts.get_user(user_id),
+       stranger: stranger
+     )}
   end
 
   @impl Phoenix.LiveView
@@ -28,8 +34,8 @@ defmodule StrangerWeb.MessagesLive do
     <div>
       <%= inspect @stranger %>
     </div>
-    <div id="chat_box">
-      <ul id="messages">
+    <div phx-hook="InfiniteScroll" id="inifinite-scroll">
+      <ul>
         <%= for message <- @messages do %>
           <li id="chat-<%= message._id %>">
           <strong> <%= get_sender_name(message, @user, @stranger) %> </strong>
@@ -44,6 +50,24 @@ defmodule StrangerWeb.MessagesLive do
       </ul>
     </div>
     """
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("load-more", _, %{assigns: assigns} = socket) do
+    {
+      :noreply,
+      socket
+      |> assign(page: assigns.page + 1)
+      |> fetch_more_messages()
+    }
+  end
+
+  defp fetch_more_messages(%{assigns: assigns} = socket) do
+    assign(socket,
+      messages:
+        assigns.messages ++
+          Messages.list_messages_for_conversation(assigns.conversation_id, assigns.page)
+    )
   end
 
   defp get_sender_name(message, user, stranger) do

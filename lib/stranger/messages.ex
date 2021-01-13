@@ -1,6 +1,8 @@
 defmodule Stranger.Messages do
   alias Stranger.Messages.Message
 
+  @page_size 15
+
   def create_message(attrs) do
     attrs
     |> Message.changeset()
@@ -18,12 +20,14 @@ defmodule Stranger.Messages do
     end
   end
 
-  def list_messages_for_conversation(conversation_id) do
+  def list_messages_for_conversation(conversation_id, page \\ 1) do
     Mongo.find(
       :mongo,
       "messages",
       %{"conversation_id" => conversation_id},
-      sort: %{"sent_at" => 1}
+      sort: %{"sent_at" => 1},
+      skip: (page - 1) * @page_size,
+      limit: @page_size
     )
     |> Enum.map(&Message.to_struct/1)
   end

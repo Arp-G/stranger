@@ -1,11 +1,13 @@
-<ul>
-<%= for conv <- @conversations do %>
-  <li>
-    <%= link to: Routes.messages_path(@socket, :index, BSON.ObjectId.encode!(conv.id)) do %>
-      <strong> <%= "#{conv.user.profile.first_name} #{conv.user.profile.last_name}"  %> </strong> <br>
-      <strong> Duration: <%= conv.duration %> </strong> <br>
-      <strong> On: <%= inspect conv.on %> </strong>
-    <% end %>
-  </li>
-<% end %>
-</ul>
+<div phx-hook="InfiniteScroll" id="inifinite-scroll">
+  <ul>
+  <%= for conv <- @conversations do %>
+    <li>
+      <%= link to: Routes.messages_path(@socket, :index, BSON.ObjectId.encode!(conv.id)) do %>
+        <strong> <%= "#{conv.user.profile.first_name} #{conv.user.profile.last_name}"  %> </strong> <br>
+        <strong> Duration: <%= conv.duration %> </strong> <br>
+        <strong> On: <%= inspect conv.on %> </strong>
+      <% end %>
+    </li>
+  <% end %>
+  </ul>
+</div>

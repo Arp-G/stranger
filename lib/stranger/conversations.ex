@@ -1,6 +1,8 @@
 defmodule Stranger.Conversations do
   alias Stranger.{Accounts, Accounts.User}
 
+  @page_size 15
+
   def find_or_create_converastion(participant_one_id, participant_two_id) do
     find_lastest_conversation_for(participant_one_id, participant_one_id) ||
       create_conversation(%{
@@ -63,7 +65,7 @@ defmodule Stranger.Conversations do
     })
   end
 
-  def get_conversations(user) do
+  def get_conversations(user, page \\ 1) do
     conversations =
       Mongo.find(
         :mongo,
@@ -79,7 +81,9 @@ defmodule Stranger.Conversations do
             %{"ended_at" => %{"$exists": true}}
           ]
         },
-        sort: %{"ended_at" => -1}
+        sort: %{"ended_at" => -1},
+        skip: (page - 1) * @page_size,
+        limit: @page_size
       )
       |> Enum.to_list()
 

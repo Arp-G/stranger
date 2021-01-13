@@ -10,7 +10,25 @@ defmodule StrangerWeb.ConversationsLive do
     {:ok,
      assign(socket,
        user_id: user_id,
-       conversations: Conversations.get_conversations(user_id)
+       conversations: Conversations.get_conversations(user_id),
+       page: 1
      )}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("load-more", _, %{assigns: assigns} = socket) do
+    {
+      :noreply,
+      socket
+      |> assign(page: assigns.page + 1)
+      |> fetch_more_conversations()
+    }
+  end
+
+  defp fetch_more_conversations(%{assigns: assigns} = socket) do
+    assign(socket,
+      conversations:
+        assigns.conversations ++ Conversations.get_conversations(assigns.user_id, assigns.page)
+    )
   end
 end
