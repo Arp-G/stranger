@@ -65,6 +65,20 @@ defmodule Stranger.Conversations do
     })
   end
 
+  def get_conversations_count(user) do
+    Mongo.count_documents!(:mongo, "conversations", %{
+      "$and" => [
+        %{
+          "$or" => [
+            %{"participant_one_id" => user},
+            %{"participant_two_id" => user}
+          ]
+        },
+        %{"ended_at" => %{"$exists": true}}
+      ]
+    })
+  end
+
   def get_conversations(user, page \\ 1) do
     conversations =
       Mongo.find(

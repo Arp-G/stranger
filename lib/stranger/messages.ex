@@ -20,6 +20,10 @@ defmodule Stranger.Messages do
     end
   end
 
+  def get_messages_count(conversation_id) do
+    Mongo.count_documents!(:mongo, "messages", %{"conversation_id" => conversation_id})
+  end
+
   def list_messages_for_conversation(conversation_id, page \\ 1) do
     Mongo.find(
       :mongo,

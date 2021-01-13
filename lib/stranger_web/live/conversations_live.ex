@@ -10,6 +10,7 @@ defmodule StrangerWeb.ConversationsLive do
     {:ok,
      assign(socket,
        user_id: user_id,
+       count: Conversations.get_conversations_count(user_id),
        conversations: Conversations.get_conversations(user_id),
        page: 1
      )}

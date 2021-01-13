@@ -20,6 +20,7 @@ defmodule StrangerWeb.MessagesLive do
 
     {:ok,
      assign(socket,
+       count: Messages.get_messages_count(conversation_id),
        messages: messages,
        page: 1,
        conversation_id: conversation_id,
@@ -31,6 +32,7 @@ defmodule StrangerWeb.MessagesLive do
   @impl Phoenix.LiveView
   def render(assigns) do
     ~L"""
+    <h2> This conversation has <%= @count %> messages </h2>
     <div>
       <%= inspect @stranger %>
     </div>
