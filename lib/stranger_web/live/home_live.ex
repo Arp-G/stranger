@@ -1,18 +1,45 @@
 defmodule StrangerWeb.HomeLive do
-  use StrangerWeb, :live_view
-  use Phoenix.HTML
+  use Phoenix.LiveView
   alias Stranger.{Accounts, Accounts.User, Uploaders.Avatar}
 
+  @flash_messages %{
+    "create_avatar_error" => "Registered successfully but avatar upload failed",
+    "update_avatar_error" => "Profile updated but avattar update failed",
+    "create_success" => "User registered successfully",
+    "update_success" => "Profile updated successfully",
+    "create_error" => "Could not register user check for errors",
+    "update_error" => "Could not update profile check for errors"
+  }
+
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
+    [mode, user] =
+      case StrangerWeb.Plugs.UserAuth.get_user_id(session["token"]) do
+        {:ok, user_id} -> ["update", Accounts.get_user(user_id)]
+        _ -> ["create", %User{}]
+      end
+
     {:ok,
      socket
      |> assign(%{
-       changeset: User.registration_changeset(%{}),
-       section: 0,
-       uploaded_files: []
+       user: user,
+       changeset: User.registration_changeset(%{}, user),
+       section: if(mode == "create", do: 0, else: 1),
+       uploaded_files: [],
+       mode: mode
      })
      |> allow_upload(:avatar, accept: ~w(.jpg .jpeg .png), max_entries: 1)}
+  end
+
+  @impl true
+  def render(assigns) do
+    if assigns.mode == "create" do
+      # For having custom template files
+      # here we need to defin a view "HomeLiveView" and keep the leex templates properly in the templates deirectory
+      Phoenix.View.render(StrangerWeb.HomeLiveView, "home_live.html", assigns)
+    else
+      Phoenix.View.render(StrangerWeb.HomeLiveView, "settings_live.html", assigns)
+    end
   end
 
   @impl true
@@ -38,14 +65,14 @@ defmodule StrangerWeb.HomeLive do
 
   @impl true
   def handle_event("save", %{"user" => user_params}, socket) do
-    case Accounts.create_user(user_params) do
+    case create_or_update(user_params, socket) do
       {:ok, user} ->
         case handle_avatar_upload(socket, user) do
           {:error, _} ->
             {
               :noreply,
               socket
-              |> put_flash(:error, "Registered successfully but avatar upload failed")
+              |> put_flash(:error, flash_message("avatar_error", socket))
               |> redirect(to: StrangerWeb.Router.Helpers.home_path(socket, :index))
             }
 
@@ -53,7 +80,7 @@ defmodule StrangerWeb.HomeLive do
             {
               :noreply,
               socket
-              |> put_flash(:info, "User registered successfully")
+              |> put_flash(:info, flash_message("success", socket))
               |> redirect(to: StrangerWeb.Router.Helpers.home_path(socket, :index))
             }
         end
@@ -64,7 +91,7 @@ defmodule StrangerWeb.HomeLive do
           socket
           |> assign(changeset: Map.put(changeset, :action, :insert))
           |> clear_flash()
-          |> put_flash(:error, "Could not register user check for errors")
+          |> put_flash(:error, "error")
         }
     end
   end
@@ -122,6 +149,20 @@ defmodule StrangerWeb.HomeLive do
       _ ->
         :ok
     end
+  end
+
+  defp create_or_update(user_params, socket) do
+    if socket.assigns.mode == "create" do
+      Accounts.create_user(user_params)
+    else
+      Accounts.update_user(socket.assigns.user._id, socket.assigns.changeset, user_params)
+    end
+  end
+
+  defp flash_message(error, socket) do
+    error = "#{socket.assigns.mode}_#{error}"
+
+    Map.get(@flash_messages, error)
   end
 end
 

@@ -7,7 +7,7 @@ defmodule Stranger.Accounts do
   end
 
   def get_users(user_ids) do
-    Mongo.find(:mongo, "users", %{ _id: %{ "$in": user_ids } })
+    Mongo.find(:mongo, "users", %{_id: %{"$in": user_ids}})
     |> Enum.to_list()
   end
 
@@ -35,6 +35,39 @@ defmodule Stranger.Accounts do
       changeset ->
         {:error, changeset}
     end
+  end
+
+  def update_user(user_id, changeset, params) do
+    require IEx
+    IEx.pry
+    changeset = User.registration_changeset(params, changeset)
+
+    # User.registration_changeset(%{}, changeset)
+
+    changes =
+      (changeset.changes[:profile] &&
+         Map.put(changeset.changes, :profile, changeset.changes.profile.changes)) ||
+        changeset.changes
+
+    IO.inspect(changeset)
+    IO.inspect(changes)
+
+    if changeset.valid? && changeset.changes.profile.valid? do
+      changes = Map.put(changeset.changes, :profile, changeset.changes.profile.changes)
+
+      IO.inspect(changes)
+
+      # Mongo.update_one(
+      #   :mongo,
+      #   "users",
+      #   %{_id: user_id},
+      #   %{"$set": changes}
+      # )
+    else
+      {:error, changeset}
+    end
+
+    {:error, changeset}
   end
 
   def sign_in(last_sign_in_ip, email, password) do

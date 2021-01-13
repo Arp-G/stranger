@@ -4,7 +4,7 @@
   <%= if @section == 0 do %>
     <%= live_component @socket, StrangerWeb.LoginFormComponent, id: :login %>
   <% else %>
-    <%= live_component @socket, StrangerWeb.RegistrationFormComponent, changeset: @changeset, section: @section, uploads: @uploads %>
+    <%= live_component @socket, StrangerWeb.RegistrationFormComponent, changeset: @changeset, section: @section, uploads: @uploads, mode: @mode %>
     <p>
       <%= if @section == 2 do %>
         <button class="btn btn-primary" phx-click="prev">Back</button>

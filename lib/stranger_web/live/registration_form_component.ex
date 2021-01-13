@@ -79,9 +79,11 @@ defmodule StrangerWeb.RegistrationFormComponent do
         </section>
       </form>
       <p>
-      <a href="#" phx-click="jump_to_0">
-        Already have an Account? Sign in here.
-      </a>
+      <%= if @mode == "create" do %>
+        <a href="#" phx-click="jump_to_0">
+          Already have an Account? Sign in here.
+        </a>
+      <% end %>
     </p>
     """
   end

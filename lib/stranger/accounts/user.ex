@@ -22,6 +22,12 @@ defmodule Stranger.Accounts.User do
     |> put_change(:inserted_at, DateTime.utc_now())
   end
 
+  # def put_inserted_at(%{is_valid?: true} = changeset) do
+  #   put_change(changeset, :inserted_at, DateTime.utc_now())
+  # end
+
+  # def put_inserted_at(changeset), do: changeset
+
   def validation_changeset(attrs, user \\ %User{}) do
     user
     |> cast(attrs, [:email, :password])
