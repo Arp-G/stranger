@@ -45,6 +45,7 @@ defmodule StrangerWeb.Router do
 
     live "/dashboard", DashboardLive, :index
     live "/conversations", ConversationsLive, :index
+    live "/settings", SettingsLive, :index
   end
 
   scope "/", StrangerWeb do

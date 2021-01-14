@@ -28,12 +28,7 @@ defmodule Stranger.Accounts.User do
     |> validate_required([:email, :password])
     |> validate_format(:email, ~r/\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i)
     |> update_change(:email, &String.downcase/1)
-    |> validate_confirmation(
-      :password,
-      required: true,
-      message: "does not match password"
-    )
-    |> validate_format(:password, ~r/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/)
+    |> password_changeset(attrs)
     # This automatically calls thhe embedded modules changeset/2 function,
     # to run validations on the embedded schema, using :with option we provide a custom function instead of the default changeset/2
     |> cast_embed(:profile)
@@ -45,6 +40,17 @@ defmodule Stranger.Accounts.User do
     |> put_change(:last_sign_in_at, DateTime.utc_now())
   end
 
+  def password_changeset(user, attrs \\ %{}) do
+    user
+    |> cast(attrs, [:password])
+    |> validate_confirmation(
+      :password,
+      required: true,
+      message: "does not match password"
+    )
+    |> validate_format(:password, ~r/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/)
+  end
+
   def validate_unique_email(%Ecto.Changeset{changes: %{email: email}} = changeset) do
     Mongo.find_one(:mongo, "users", %{email: email})
     |> if(do: add_error(changeset, :email, "has already been taken"), else: changeset)
@@ -52,17 +58,17 @@ defmodule Stranger.Accounts.User do
 
   def validate_unique_email(changeset), do: changeset
 
-  defp put_password_hash(%Ecto.Changeset{valid?: true} = changeset) do
+  def put_password_hash(%Ecto.Changeset{valid?: true} = changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: password}} ->
-        put_change(changeset, :password_hash, "Argon2.hash_pwd_salt(password)")
+        put_change(changeset, :password_hash, Argon2.hash_pwd_salt(password))
 
       _ ->
         changeset
     end
   end
 
-  defp put_password_hash(changeset), do: changeset
+  def put_password_hash(changeset), do: changeset
 
   # Override default to_struct
   def to_struct(%{profile: profile} = user) do

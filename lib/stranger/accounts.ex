@@ -7,8 +7,25 @@ defmodule Stranger.Accounts do
   end
 
   def get_users(user_ids) do
-    Mongo.find(:mongo, "users", %{ _id: %{ "$in": user_ids } })
+    Mongo.find(:mongo, "users", %{_id: %{"$in": user_ids}})
     |> Enum.to_list()
+  end
+
+  def update_password(user_id, changeset) do
+    case changeset do
+      %{valid?: true} = changeset ->
+        password_hash = User.put_password_hash(changeset).changes |> Map.get(:password_hash)
+
+        Mongo.update_one(
+          :mongo,
+          "users",
+          %{_id: user_id},
+          %{"$set": %{password_hash: password_hash}}
+        )
+
+      _ ->
+        changeset
+    end
   end
 
   def create_user(params) do
@@ -62,15 +79,15 @@ defmodule Stranger.Accounts do
     Mongo.update_one(:mongo, "users", %{email: email}, %{"$set": %{"profile.avatar": filename}})
   end
 
-  defp verify_password(password, %User{password_hash: password_hash} = user)
+  def verify_password(password, %User{password_hash: password_hash} = user)
        when is_binary(password) do
-    if true || Argon2.verify_pass(password, password_hash), do: {:ok, user}, else: :error
+    if Argon2.verify_pass(password, password_hash), do: {:ok, user}, else: :error
   end
 
   defp get_by_email(email) when is_binary(email) do
     case Mongo.find_one(:mongo, "users", %{email: email}) do
       nil ->
-        "Argon2.no_user_verify()"
+        Argon2.no_user_verify()
         {:error, "Login error."}
 
       user ->

@@ -16,7 +16,7 @@ defmodule Stranger.Messages do
         Mongo.insert_one(:mongo, "messages", args_map)
 
       changeset ->
-        changeset
+        {:error, changeset}
     end
   end
 
