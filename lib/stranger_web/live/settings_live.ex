@@ -1,6 +1,7 @@
 defmodule StrangerWeb.SettingsLive do
   use StrangerWeb, :live_view
-  alias Stranger.{Accounts, Accounts.User}
+  import StrangerWeb.LiveHelpers
+  alias Stranger.{Accounts, Accounts.User, Accounts.Profile}
 
   @impl Phoenix.LiveView
   def mount(
@@ -15,7 +16,8 @@ defmodule StrangerWeb.SettingsLive do
     {:ok,
      assign(socket,
        user: user,
-       password_changeset: User.password_changeset(user)
+       password_changeset: User.password_changeset(user),
+       profile_changeset: Profile.changeset(user.profile, %{})
      )}
   end
 
@@ -25,8 +27,6 @@ defmodule StrangerWeb.SettingsLive do
       %User{}
       |> User.password_changeset(params)
       |> Map.put(:action, :insert)
-
-    IO.inspect(password_changeset)
 
     {:noreply, assign(socket, password_changeset: password_changeset)}
   end
@@ -67,10 +67,85 @@ defmodule StrangerWeb.SettingsLive do
   end
 
   @impl Phoenix.LiveView
+  def handle_event("validate_profile", %{"profile" => params}, socket) do
+    profile_changeset =
+      Profile.changeset(socket.assigns.user.profile, params)
+      |> Map.put(:action, :insert)
+
+    {:noreply, assign(socket, profile_changeset: profile_changeset)}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("update_profile", %{"profile" => params}, socket) do
+    socket.assigns.user
+    |> Accounts.update_profile(params)
+    |> case do
+      {:error, profile_changeset} ->
+        {
+          :noreply,
+          socket
+          |> assign(profile_changeset: profile_changeset |> Map.put(:action, :insert))
+          |> clear_flash()
+          |> put_flash(:error, "Failed to update profile, check for errors")
+        #  |> redirect(to: StrangerWeb.Router.Helpers.settings_path(socket, :index))
+        }
+
+      _ ->
+        {
+          :noreply,
+          socket
+          |> clear_flash()
+          |> put_flash(:info, "Profile updated successfully")
+        #  |> redirect(to: StrangerWeb.Router.Helpers.settings_path(socket, :index))
+        }
+    end
+  end
+
+  @impl Phoenix.LiveView
   def render(assigns) do
     ~L"""
-    <h2> Change Password </h2>
+    <h2> Update Profile </h2>
     <div>
+      <%= f = form_for @profile_changeset, "#", [phx_change: :validate_profile, phx_submit: :update_profile] %>
+
+        <p>
+          <%= label f, :first_name %>
+          <%= text_input f, :first_name %>
+          <p><%= error_tag f, :first_name %></p>
+        </p>
+
+        <p>
+          <%= label f, :last_name %>
+          <%= text_input f, :last_name %>
+          <p><%= error_tag f, :last_name %></p>
+        </p>
+
+        <p>
+          <%= label f, :dob %>
+          <%= date_input f, :dob, value: format_date(f) %>
+          <p><%= error_tag f, :dob %></p>
+        </p>
+
+        <p>
+          <%= label f, :country %>
+          <%= text_input f, :country %>
+          <p><%= error_tag f, :country %></p>
+        </p>
+
+        <p>
+          <%= label f, :bio %>
+          <%= textarea f, :bio %>
+          <p><%= error_tag f, :bio %></p>
+        </p>
+
+        <p>
+          <%= submit "Update Profile", "phx-disable-with": "Saving...", class: "btn btn-primary" %>
+        </p>
+      </form>
+
+      <hr>
+      <h2> Update Password </h2>
+
       <%= f = form_for @password_changeset, "#", [phx_change: :validate_password, phx_submit: :update_password] %>
         <p>
 

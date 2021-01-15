@@ -55,7 +55,7 @@ defmodule StrangerWeb.RegistrationFormComponent do
 
               <p>
                 <%= label fp, :dob %>
-                <%= date_input fp, :dob, value: date_time_to_date(fp.params["dob"]) %>
+                <%= date_input fp, :dob, value: format_date(fp) %>
                 <p><%= error_tag fp, :dob %></p>
               </p>
 
