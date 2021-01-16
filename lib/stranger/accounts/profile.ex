@@ -16,25 +16,11 @@ defmodule Stranger.Accounts.Profile do
 
   def changeset(user_profile, attrs) do
     user_profile
-    |> cast(sanitize_dob(attrs), [:first_name, :last_name, :dob, :country, :bio])
+    |> cast(sanitize_dob(attrs), [:first_name, :last_name, :avatar, :dob, :country, :bio])
     |> validate_required([:first_name, :last_name])
     |> validate_length(:country, max: 50)
     |> validate_length(:bio, max: 200)
     |> validate_change(:dob, &validate_date_not_in_the_future/2)
-  end
-
-  def avatar_changeset(user_profile, attrs) do
-    case attrs["avatar"] do
-      "" ->
-        avatar = if user_profile.avatar, do: user_profile.avatar.file_name, else: ""
-
-        with :ok <- Avatar.delete({avatar, user_profile}) do
-          user_profile |> cast(attrs, [:avatar])
-        end
-
-      _ ->
-        cast_attachments(user_profile, attrs, [:avatar])
-    end
   end
 
   defp validate_date_not_in_the_future(field, date) do

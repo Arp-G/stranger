@@ -9,8 +9,7 @@ defmodule StrangerWeb.HomeLive do
      socket
      |> assign(%{
        changeset: User.registration_changeset(%{}),
-       section: 0,
-       uploaded_files: []
+       section: 0
      })
      |> allow_upload(:avatar, accept: ~w(.jpg .jpeg .png), max_entries: 1)}
   end
