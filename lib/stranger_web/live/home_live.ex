@@ -1,9 +1,10 @@
 defmodule StrangerWeb.HomeLive do
   use StrangerWeb, :live_view
   use Phoenix.HTML
-  alias Stranger.{Accounts, Accounts.User, Uploaders.Avatar}
+  import StrangerWeb.LiveHelpers
+  alias Stranger.{Accounts, Accounts.User}
 
-  @impl true
+  @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
     {:ok,
      socket
@@ -14,7 +15,7 @@ defmodule StrangerWeb.HomeLive do
      |> allow_upload(:avatar, accept: ~w(.jpg .jpeg .png), max_entries: 1)}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_event("validate", %{"user" => params}, socket) do
     changeset =
       params
@@ -25,7 +26,7 @@ defmodule StrangerWeb.HomeLive do
     {:noreply, assign(socket, changeset: changeset)}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_event("validate_email", _args, %{assigns: %{changeset: changeset}} = socket) do
     changeset =
       changeset
@@ -35,7 +36,7 @@ defmodule StrangerWeb.HomeLive do
     {:noreply, assign(socket, changeset: changeset)}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_event("save", %{"user" => user_params}, socket) do
     case Accounts.create_user(user_params) do
       {:ok, user} ->
@@ -45,7 +46,13 @@ defmodule StrangerWeb.HomeLive do
               :noreply,
               socket
               |> put_flash(:error, "Registered successfully but avatar upload failed")
-              |> redirect(to: StrangerWeb.Router.Helpers.home_path(socket, :index))
+              |> redirect(
+                to:
+                  StrangerWeb.Router.Helpers.session_path(socket, :sign_in, %{
+                    email: user_params["email"],
+                    password: user_params["password"]
+                  })
+              )
             }
 
           _ ->
@@ -53,7 +60,13 @@ defmodule StrangerWeb.HomeLive do
               :noreply,
               socket
               |> put_flash(:info, "User registered successfully")
-              |> redirect(to: StrangerWeb.Router.Helpers.home_path(socket, :index))
+              |> redirect(
+                to:
+                  StrangerWeb.Router.Helpers.session_path(socket, :sign_in, %{
+                    email: user_params["email"],
+                    password: user_params["password"]
+                  })
+              )
             }
         end
 
@@ -68,26 +81,9 @@ defmodule StrangerWeb.HomeLive do
     end
   end
 
-  @impl true
-  def handle_event("next", _args, %{assigns: %{section: section_number}} = socket) do
-    section_number = if section_number < 2, do: section_number + 1, else: section_number
-    {:noreply, assign(socket, section: section_number)}
-  end
-
-  @impl true
-  def handle_event("prev", _args, %{assigns: %{section: section_number}} = socket) do
-    section_number = if section_number > 0, do: section_number - 1, else: section_number
-    {:noreply, assign(socket, section: section_number)}
-  end
-
-  @impl true
-  def handle_event("jump_to_" <> jump_to, _args, socket) do
-    {:noreply, assign(socket, section: String.to_integer(jump_to))}
-  end
-
+  @impl Phoenix.LiveView
   # Cancel all subsequest uploads
-  @impl true
-  def handle_event("on_upload", %{}, %{assigns: %{uploads: uploads}} = socket) do
+  def handle_event("on_upload", _, %{assigns: %{uploads: uploads}} = socket) do
     case uploads.avatar.entries do
       [first, _last] ->
         {:noreply, cancel_upload(socket, :avatar, first.ref)}
@@ -97,32 +93,25 @@ defmodule StrangerWeb.HomeLive do
     end
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_event("cancel-upload", %{"ref" => ref}, socket) do
     {:noreply, cancel_upload(socket, :avatar, ref)}
   end
 
-  defp handle_avatar_upload(socket, user) do
-    consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
-      dest = Path.join("priv/static/uploads", Path.basename(path))
-      File.cp!(path, dest)
-      dest
-    end)
-    |> case do
-      [file_path] ->
-        case Avatar.store({file_path, user}) do
-          {:ok, img_url} ->
-            Accounts.update_avatar(user, img_url)
+  @impl Phoenix.LiveView
+  def handle_event("next", _args, %{assigns: %{section: section_number}} = socket) do
+    section_number = if section_number < 2, do: section_number + 1, else: section_number
+    {:noreply, assign(socket, section: section_number)}
+  end
 
-          _ ->
-            {:error, "Image upload failed"}
-        end
+  @impl Phoenix.LiveView
+  def handle_event("prev", _args, %{assigns: %{section: section_number}} = socket) do
+    section_number = if section_number > 0, do: section_number - 1, else: section_number
+    {:noreply, assign(socket, section: section_number)}
+  end
 
-      _ ->
-        :ok
-    end
+  @impl Phoenix.LiveView
+  def handle_event("jump_to_" <> jump_to, _args, socket) do
+    {:noreply, assign(socket, section: String.to_integer(jump_to))}
   end
 end
-
-# p = "live_view_upload-1609522426-906582229084086-5"
-# Avatar.url({user.profile.avatar, user}, signed: true)

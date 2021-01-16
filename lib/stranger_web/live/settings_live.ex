@@ -24,7 +24,7 @@ defmodule StrangerWeb.SettingsLive do
      |> allow_upload(:avatar, accept: ~w(.jpg .jpeg .png), max_entries: 1)}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_event("validate_password", %{"user" => params}, socket) do
     password_changeset =
       %User{}
@@ -34,7 +34,7 @@ defmodule StrangerWeb.SettingsLive do
     {:noreply, assign(socket, password_changeset: password_changeset)}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_event(
         "update_password",
         %{"user" => %{"current_password" => current_password}},
@@ -116,45 +116,27 @@ defmodule StrangerWeb.SettingsLive do
   end
 
   # Cancel all subsequest uploads
-  @impl true
-  def handle_event("on_upload", %{}, %{assigns: %{uploads: uploads}} = socket) do
-    case uploads.avatar.entries do
-      [first, _last] ->
-        {:noreply, cancel_upload(socket, :avatar, first.ref)}
+  @impl Phoenix.LiveView
+  def handle_event("on_upload", _, %{assigns: %{uploads: uploads}} = socket) do
+    {:noreply,
+     case uploads.avatar.entries do
+       [first, _last] ->
+         cancel_upload(socket, :avatar, first.ref)
 
-      _ ->
-        {:noreply, socket}
-    end
+       _ ->
+         socket
+     end
+     |> assign(remove_existing_avatar: true)}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_event("cancel-upload", %{"ref" => ref}, socket) do
     {:noreply, cancel_upload(socket, :avatar, ref)}
   end
 
+  @impl Phoenix.LiveView
   def handle_event("remove-existing-avatar", %{}, socket) do
     {:noreply, assign(socket, remove_existing_avatar: true)}
-  end
-
-  defp handle_avatar_upload(socket, user) do
-    consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
-      dest = Path.join("priv/static/uploads", Path.basename(path))
-      File.cp!(path, dest)
-      dest
-    end)
-    |> case do
-      [file_path] ->
-        case Avatar.store({file_path, user}) do
-          {:ok, img_url} ->
-            Accounts.update_avatar(user, img_url)
-
-          _ ->
-            {:error, "Image upload failed"}
-        end
-
-      _ ->
-        :ok
-    end
   end
 
   defp img_preview(assigns) do
@@ -162,7 +144,7 @@ defmodule StrangerWeb.SettingsLive do
       (avatar = assigns.user.profile.avatar) && !assigns.remove_existing_avatar &&
           is_nil(List.last(assigns.uploads.avatar.entries)) ->
         ~L"""
-          <%= img_tag(Avatar.url({assigns.user.profile.avatar, assigns.user}, signed: true), class: "img-thumbnail") %>
+          <%= img_tag(Avatar.url({avatar, assigns.user}, signed: true), class: "img-thumbnail") %>
           <a href="#" phx-click="remove-existing-avatar">&times</a>
         """
 
@@ -194,8 +176,6 @@ defmodule StrangerWeb.SettingsLive do
             Uploaded - <strong><%= entry.progress %>%</strong>
           <% end %>
         </p>
-
-
 
         <p>
           <%= label f, :first_name %>

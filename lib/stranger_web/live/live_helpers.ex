@@ -1,4 +1,7 @@
 defmodule StrangerWeb.LiveHelpers do
+  alias Stranger.{Accounts, Uploaders.Avatar}
+
+
   def section_class(current_section, section) do
     if section != current_section, do: "d-none", else: ""
   end
@@ -22,6 +25,27 @@ defmodule StrangerWeb.LiveHelpers do
 
       true ->
         nil
+    end
+end
+
+  def handle_avatar_upload(socket, user) do
+    Phoenix.LiveView.consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
+      dest = Path.join("priv/static/uploads", Path.basename(path))
+      File.cp!(path, dest)
+      dest
+    end)
+    |> case do
+      [file_path] ->
+        case Avatar.store({file_path, user}) do
+          {:ok, img_url} ->
+            Accounts.update_avatar(user, img_url)
+
+          _ ->
+            {:error, "Image upload failed"}
+        end
+
+      _ ->
+        :ok
     end
   end
 end
