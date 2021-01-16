@@ -10,7 +10,8 @@ defmodule StrangerWeb.ChatComponent do
   @impl Phoenix.LiveComponent
   def render(assigns) do
     ~L"""
-    <div id="chat_box">
+    <div id="chat_box" class="<%= @chat_box %>">
+    <button phx-click="chat_box_toggle" class="chat_header"> Chat <%= @unread_messages %></button>
       <ul id="messages">
         <%= for message <- Enum.reverse(@messages) do %>
           <li id="chat-<%= message.id %>">
@@ -25,9 +26,9 @@ defmodule StrangerWeb.ChatComponent do
         <% end %>
       </ul>
 
-      <%= f = form_for @message_changeset, "#", [phx_submit: :send_message] %>
-        <p> <%= text_input f, :content %> </p>
-        <p> <%= submit "Save", "phx-disable-with": "Sending...", class: "btn btn-primary" %> </p>
+      <%= f = form_for @message_changeset, "#", [phx_submit: :send_message, class: "chat_input"] %>
+
+        <p> <%= text_input f, :content %> <%= submit "Save", "phx-disable-with": "Sending...", class: "btn btn-primary" %> </p>
       </form>
     </div>
     """

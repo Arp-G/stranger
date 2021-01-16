@@ -15,7 +15,9 @@ defmodule StrangerWeb.RoomLive do
         room: nil,
         stranger: nil,
         message_changeset: Message.changeset(%{}),
-        messages: []
+        messages: [],
+        unread_messages: false,
+        chat_box: "close"
       )
 
     room_id
@@ -41,6 +43,18 @@ defmodule StrangerWeb.RoomLive do
   def handle_event("store_stream_id", %{"stream_id" => stream_id}, socket) do
     RoomMaster.store_stream_id(socket.assigns.room_id, socket.assigns.user_id, stream_id)
     {:noreply, socket}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("chat_box_toggle", %{}, socket) do
+    updated_assigns =
+      if socket.assigns.chat_box == "close" do
+        [chat_box: "open", unread_messages: false]
+      else
+        [chat_box: "close"]
+      end
+
+    {:noreply, assign(socket, updated_assigns)}
   end
 
   @impl Phoenix.LiveView
@@ -112,7 +126,11 @@ defmodule StrangerWeb.RoomLive do
 
   @impl Phoenix.LiveView
   def handle_info({:got_message, message}, socket) do
-    {:noreply, assign(socket, messages: [message | socket.assigns.messages])}
+    {:noreply,
+     assign(socket,
+       messages: [message | socket.assigns.messages],
+       unread_messages: socket.assigns.chat_box == "close"
+     )}
   end
 
   @impl Phoenix.LiveView
