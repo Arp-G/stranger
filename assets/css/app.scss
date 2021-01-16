@@ -95,6 +95,19 @@ html, body {
   height: 100%;
 }
 
+// NAVBAR STYLES
+
+.nav-item a {
+  text-decoration: none;
+  color: white;
+  padding: 15px;
+}
+
+.active-nav i {
+  font-size: 1.4em;
+}
+
+// VIDEO PAGE STYLES
 .subscriber {
   position: absolute !important;
   left: 0;

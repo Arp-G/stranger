@@ -45,8 +45,6 @@ defmodule StrangerWeb.LoginFormComponent do
 
   @impl true
   def handle_event("sign_in", _attrs, %{assigns: %{email: email, password: password}} = socket) do
-    # StrangerWeb.Router.Helpers.session_path
-
     {
       :noreply,
       redirect(socket,

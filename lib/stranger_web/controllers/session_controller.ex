@@ -16,6 +16,14 @@ defmodule StrangerWeb.SessionController do
     end
   end
 
+  def sign_out(conn, _) do
+    conn
+    |> configure_session(renew: true)
+    |> clear_session()
+    |> put_flash(:info, "Logged out successfully.")
+    |> redirect(to: Routes.home_path(conn, :index))
+  end
+
   defp current_ip(conn) do
     conn.remote_ip
     |> :inet_parse.ntoa()
