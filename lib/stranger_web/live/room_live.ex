@@ -3,14 +3,13 @@ defmodule StrangerWeb.RoomLive do
   alias Stranger.{RoomMaster, Accounts, Messages, Messages.Message}
 
   @impl Phoenix.LiveView
-  def mount(%{"conversation_id" => room_id} = _params, %{"token" => token} = _session, socket) do
-    {:ok, user_id} = StrangerWeb.Plugs.UserAuth.get_user_id(token)
+  def mount(%{"conversation_id" => room_id} = _params, session, socket) do
     room_id = BSON.ObjectId.decode!(room_id)
 
     socket =
-      assign(socket,
-        user: Accounts.get_user(user_id),
-        user_id: user_id,
+      socket
+      |> assign_defaults(session)
+      |> assign(
         room_id: room_id,
         room: nil,
         stranger: nil,
@@ -24,7 +23,7 @@ defmodule StrangerWeb.RoomLive do
     |> get_message_topic()
     |> StrangerWeb.Endpoint.subscribe()
 
-    case RoomMaster.join_room(room_id, user_id, self()) do
+    case RoomMaster.join_room(room_id, socket.assigns.user._id, self()) do
       {:ok, room} ->
         {:ok, assign(socket, room: room)}
 
@@ -41,7 +40,7 @@ defmodule StrangerWeb.RoomLive do
 
   @impl Phoenix.LiveView
   def handle_event("store_stream_id", %{"stream_id" => stream_id}, socket) do
-    RoomMaster.store_stream_id(socket.assigns.room_id, socket.assigns.user_id, stream_id)
+    RoomMaster.store_stream_id(socket.assigns.room_id, socket.assigns.user._id, stream_id)
     {:noreply, socket}
   end
 
@@ -74,7 +73,7 @@ defmodule StrangerWeb.RoomLive do
       id: nil,
       name: nil,
       conversation_id: assigns.room_id,
-      sender_id: assigns.user_id,
+      sender_id: assigns.user._id,
       content: message
     }
 
@@ -107,7 +106,7 @@ defmodule StrangerWeb.RoomLive do
       [user1, user2] = room.users
 
       stranger =
-        if(socket.assigns.user_id == user1.id, do: user2.id, else: user1.id)
+        if(socket.assigns.user._id == user1.id, do: user2.id, else: user1.id)
         |> Accounts.get_user()
 
       {:noreply, assign(socket, :stranger, stranger)}
@@ -140,12 +139,12 @@ defmodule StrangerWeb.RoomLive do
 
   defp get_key, do: Application.fetch_env!(:ex_opentok, :key)
 
-  def get_me(%{assigns: %{room: room, user_id: user_id}}), do: user_in_room(room, user_id)
+  def get_me(%{assigns: %{room: room, user: user}}), do: user_in_room(room, user._id)
 
   defp user_in_room(%{users: users}, user_id), do: Enum.find(users, &(&1.id == user_id))
 
-  defp stranger_in_room(%{users: users}, user_id),
-    do: Enum.reject(users, &(&1.id == user_id)) |> List.first()
+  defp stranger_in_room(%{users: users}, user),
+    do: Enum.reject(users, &(&1.id == user._id)) |> List.first()
 
   defp get_message_topic(room_id) do
     "room_chat:#{room_id}"

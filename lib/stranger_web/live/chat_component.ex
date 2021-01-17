@@ -1,5 +1,5 @@
 defmodule StrangerWeb.ChatComponent do
-  use Phoenix.LiveComponent
+  use StrangerWeb, :live_component
   use Phoenix.HTML
 
   @impl Phoenix.LiveComponent

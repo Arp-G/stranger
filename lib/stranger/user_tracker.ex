@@ -62,7 +62,12 @@ defmodule Stranger.UserTracker do
             participant_two_id: user_2
           })
 
-        Phoenix.PubSub.broadcast!(Stranger.PubSub, @topic, {:matched, [user_1, user_2, conversation_id]})
+        Phoenix.PubSub.broadcast!(
+          Stranger.PubSub,
+          @topic,
+          {:matched, [user_1, user_2, conversation_id]}
+        )
+
         {:noreply, Map.put(state, :searching_users, users)}
 
       _ ->

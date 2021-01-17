@@ -6,28 +6,29 @@ defmodule StrangerWeb.DashboardLive do
   @topic "active_users"
 
   @impl Phoenix.LiveView
-  def mount(_params, %{"token" => token} = _session, socket) do
-    {:ok, user_id} = StrangerWeb.Plugs.UserAuth.get_user_id(token)
+  def mount(_params, session, socket) do
+    socket = assign_defaults(socket, session)
+
     StrangerWeb.Endpoint.subscribe(@topic)
-    UserTracker.add_user(user_id, :active_users)
+    UserTracker.add_user(socket.assigns.user._id, :active_users)
 
     {:ok,
-     assign(socket,
-       user_id: user_id,
+     socket
+     |> assign(
        status: :idle,
        active_users: UserTracker.get_active_users_count()
      )}
   end
 
   @impl Phoenix.LiveView
-  def handle_event("search", _args, %{assigns: %{user_id: user_id}} = socket) do
-    UserTracker.add_user(user_id, :searching_users)
+  def handle_event("search", _args, %{assigns: %{user: user}} = socket) do
+    UserTracker.add_user(user._id, :searching_users)
     {:noreply, assign(socket, status: :searching)}
   end
 
   @impl Phoenix.LiveView
-  def handle_event("stop_search", _args, %{assigns: %{user_id: user_id}} = socket) do
-    UserTracker.remove_user(user_id, :searching_users)
+  def handle_event("stop_search", _args, %{assigns: %{user: user}} = socket) do
+    UserTracker.remove_user(user._id, :searching_users)
     {:noreply, assign(socket, status: :idle)}
   end
 
@@ -39,9 +40,9 @@ defmodule StrangerWeb.DashboardLive do
   @impl Phoenix.LiveView
   def handle_info(
         {:matched, [user_1, user_2, conversation_id]},
-        %{assigns: %{user_id: user_id}} = socket
+        %{assigns: %{user: user}} = socket
       ) do
-    if user_id in [user_1, user_2] do
+    if user._id in [user_1, user_2] do
       Process.send_after(self(), {:redirect_after_match, conversation_id}, 3000)
       {:noreply, assign(socket, status: {:matched, conversation_id})}
     else
@@ -65,8 +66,8 @@ defmodule StrangerWeb.DashboardLive do
   end
 
   @impl Phoenix.LiveView
-  def terminate(_reason, %{assigns: %{user_id: user_id}} = _socket) do
-    UserTracker.remove_user(user_id, :active_users)
+  def terminate(_reason, %{assigns: %{user: user}} = _socket) do
+    UserTracker.remove_user(user._id, :active_users)
   end
 
   defp dashboard_status(status) do

@@ -5,17 +5,17 @@ defmodule StrangerWeb.MessagesLive do
   @impl Phoenix.LiveView
   def mount(
         %{"conversation_id" => conversation_id} = _params,
-        %{"token" => token} = _session,
+        session,
         socket
       ) do
-    {:ok, user_id} = StrangerWeb.Plugs.UserAuth.get_user_id(token)
+    socket = assign_defaults(socket, session)
 
     conversation_id = BSON.ObjectId.decode!(conversation_id)
     messages = Messages.list_messages_for_conversation(conversation_id)
 
     stranger =
       conversation_id
-      |> Conversations.get_stranger_for_conversation(user_id)
+      |> Conversations.get_stranger_for_conversation(socket.assigns.user._id)
       |> Accounts.get_user()
 
     {:ok,
@@ -24,7 +24,6 @@ defmodule StrangerWeb.MessagesLive do
        messages: messages,
        page: 1,
        conversation_id: conversation_id,
-       user: Accounts.get_user(user_id),
        stranger: stranger
      )}
   end

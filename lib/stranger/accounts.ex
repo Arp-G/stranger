@@ -2,8 +2,8 @@ defmodule Stranger.Accounts do
   alias Stranger.Accounts.{User, Profile}
 
   def get_user(%BSON.ObjectId{} = id) do
-    Mongo.find_one(:mongo, "users", %{_id: id})
-    |> User.to_struct()
+    user = Mongo.find_one(:mongo, "users", %{_id: id})
+    if user, do: User.to_struct(user)
   end
 
   def get_users(user_ids) do

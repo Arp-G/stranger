@@ -18,7 +18,6 @@
 #         } = socket
 #       ) do
 
-
 #         payload = %{
 #         #  id: id,
 #           sender_id: sender_id,
@@ -27,9 +26,7 @@
 #           time: DateTime.utc_now()
 #         }
 
-
 #     broadcast!(socket, "new:msg", payload)
-
 
 #     {:noreply, socket}
 #   end

@@ -2,12 +2,12 @@
 <%= if !is_nil(@room) do %>
   <div id="videos">
 
-    <%= @user_id %> (you)<br>
+    <%= @user._id %> (you)<br>
     <div phx-update="ignore">
       <div phx-hook="PublisherInit" id="publisher-div"></div>
     </div>
 
-    <%= if user = stranger_in_room(@room, @user_id) do %>
+    <%= if user = stranger_in_room(@room, @user) do %>
       <div id="user-<%= BSON.ObjectId.encode!(user.id) %>" style="margin-left: 10px">
         <%= user.id %><br>
         <%= if is_nil(user.stream_id) do %>

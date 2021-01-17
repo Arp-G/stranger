@@ -22,7 +22,6 @@ defmodule Stranger.MixProject do
     ]
   end
 
-
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
@@ -74,7 +73,7 @@ defmodule Stranger.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       # Run static code analysis tools to check code quality
-      quality: ["format", "sobelow --verbose --skip", "dialyzer", "credo --strict"],
+      quality: ["format", "sobelow --verbose --skip", "dialyzer", "credo --strict"]
       # If a file is changed, and Sentry is not recompiled, it will still report old source code.
       # To ensure source code is up to date is recompile Sentry
       # sentry_recompile: ["compile", "deps.compile sentry --force"]

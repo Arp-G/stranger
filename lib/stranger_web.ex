@@ -47,6 +47,7 @@ defmodule StrangerWeb do
       use Phoenix.LiveView,
         layout: {StrangerWeb.LayoutView, "live.html"}
 
+      import StrangerWeb.LiveHelpers
       unquote(view_helpers())
     end
   end
@@ -55,6 +56,7 @@ defmodule StrangerWeb do
     quote do
       use Phoenix.LiveComponent
 
+      import StrangerWeb.LiveHelpers
       unquote(view_helpers())
     end
   end

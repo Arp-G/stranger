@@ -1,7 +1,6 @@
 defmodule StrangerWeb.HomeLive do
   use StrangerWeb, :live_view
   use Phoenix.HTML
-  import StrangerWeb.LiveHelpers
   alias Stranger.{Accounts, Accounts.User}
 
   @impl Phoenix.LiveView
@@ -20,7 +19,6 @@ defmodule StrangerWeb.HomeLive do
     changeset =
       params
       |> User.validation_changeset()
-      # Erros are only shown on form submit action, since we use live view the form is not yet submitted so we have to change the action argument
       |> Map.put(:action, :insert)
 
     {:noreply, assign(socket, changeset: changeset)}

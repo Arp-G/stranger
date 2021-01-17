@@ -36,21 +36,4 @@ defmodule StrangerWeb.Plugs.UserAuth do
       max_age: 86400
     )
   end
-
-  # @spec logout_user(Plug.Conn.t()) :: Plug.Conn.t()
-  # def logout_user(conn) do
-  #   conn
-  #   |> renew_session()
-  #   |> put_flash(:info, "Logged out successfully.")
-  #   |> redirect(to: Routes.page_path(conn, :index))
-  # end
-
-  # @spec verify_correct_user(Plug.Conn.t(), any) :: Plug.Conn.t()
-  # def verify_correct_user(conn, _opts) do
-
-  #   conn
-  #   |> put_flash(:error, "Unautherized")
-  #   |> redirect(to: Routes.page_path(conn, :index))
-  #   |> halt()
-  # end
 end

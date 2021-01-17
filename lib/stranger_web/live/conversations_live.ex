@@ -4,14 +4,14 @@ defmodule StrangerWeb.ConversationsLive do
   alias Stranger.Conversations
 
   @impl Phoenix.LiveView
-  def mount(_params, %{"token" => token} = _session, socket) do
-    {:ok, user_id} = StrangerWeb.Plugs.UserAuth.get_user_id(token)
+  def mount(_params, session, socket) do
+    socket = assign_defaults(socket, session)
 
     {:ok,
-     assign(socket,
-       user_id: user_id,
-       count: Conversations.get_conversations_count(user_id),
-       conversations: Conversations.get_conversations(user_id),
+     socket
+     |> assign(
+       count: Conversations.get_conversations_count(socket.assigns.user._id),
+       conversations: Conversations.get_conversations(socket.assigns.user._id),
        page: 1
      )}
   end
@@ -29,7 +29,7 @@ defmodule StrangerWeb.ConversationsLive do
   defp fetch_more_conversations(%{assigns: assigns} = socket) do
     assign(socket,
       conversations:
-        assigns.conversations ++ Conversations.get_conversations(assigns.user_id, assigns.page)
+        assigns.conversations ++ Conversations.get_conversations(assigns.user._id, assigns.page)
     )
   end
 end

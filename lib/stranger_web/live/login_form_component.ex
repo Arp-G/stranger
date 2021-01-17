@@ -1,5 +1,5 @@
 defmodule StrangerWeb.LoginFormComponent do
-  use Phoenix.LiveComponent
+  use StrangerWeb, :live_component
   use Phoenix.HTML
 
   @impl true
@@ -48,7 +48,12 @@ defmodule StrangerWeb.LoginFormComponent do
     {
       :noreply,
       redirect(socket,
-        to: StrangerWeb.Router.Helpers.session_path(socket, :sign_in, %{email: email, password: password})
+        to:
+          StrangerWeb.Router.Helpers.session_path(
+            socket,
+            :sign_in,
+            %{email: email, password: password}
+          )
       )
     }
   end

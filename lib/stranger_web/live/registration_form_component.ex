@@ -1,8 +1,5 @@
 defmodule StrangerWeb.RegistrationFormComponent do
-  use Phoenix.LiveComponent
-  use Phoenix.HTML
-  import StrangerWeb.ErrorHelpers
-  import StrangerWeb.LiveHelpers
+  use StrangerWeb, :live_component
 
   def render(assigns) do
     ~L"""

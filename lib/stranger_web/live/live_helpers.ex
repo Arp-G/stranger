@@ -1,6 +1,6 @@
 defmodule StrangerWeb.LiveHelpers do
   alias Stranger.{Accounts, Uploaders.Avatar}
-
+  import Phoenix.LiveView
 
   def section_class(current_section, section) do
     if section != current_section, do: "d-none", else: ""
@@ -26,10 +26,10 @@ defmodule StrangerWeb.LiveHelpers do
       true ->
         nil
     end
-end
+  end
 
   def handle_avatar_upload(socket, user) do
-    Phoenix.LiveView.consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
+    consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
       dest = Path.join("priv/static/uploads", Path.basename(path))
       File.cp!(path, dest)
       dest
@@ -47,5 +47,25 @@ end
       _ ->
         :ok
     end
+  end
+
+  def assign_defaults(socket, %{"token" => token} = _session) do
+    case StrangerWeb.Plugs.UserAuth.get_user_id(token) do
+      {:ok, user_id} ->
+        # Assign tosocket only if the assigns is not present already, avoids unecessary user query
+        # reusing any of the connection assigns from the HTTP request
+        socket = assign_new(socket, :user, fn -> Stranger.Accounts.get_user(user_id) end)
+
+        if socket.assigns.user, do: socket, else: redirect_to_login(socket)
+
+      _ ->
+        redirect_to_login(socket)
+    end
+  end
+
+  defp redirect_to_login(socket) do
+    socket
+    |> put_flash(:error, "You must be logged in to access that page")
+    |> redirect(to: StrangerWeb.Router.Helpers.home_path(socket, :index))
   end
 end

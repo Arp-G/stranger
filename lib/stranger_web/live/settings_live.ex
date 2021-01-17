@@ -1,25 +1,17 @@
 defmodule StrangerWeb.SettingsLive do
   use StrangerWeb, :live_view
-  import StrangerWeb.LiveHelpers
   alias Stranger.{Accounts, Accounts.User, Accounts.Profile, Uploaders.Avatar}
 
   @impl Phoenix.LiveView
-  def mount(
-        _params,
-        %{"token" => token} = _session,
-        socket
-      ) do
-    {:ok, user_id} = StrangerWeb.Plugs.UserAuth.get_user_id(token)
-
-    user = Accounts.get_user(user_id)
+  def mount(_params, session, socket) do
+    socket = assign_defaults(socket, session)
 
     {:ok,
      socket
      |> assign(
-       user: user,
-       password_changeset: User.password_changeset(user),
+       password_changeset: User.password_changeset(socket.assigns.user),
        remove_existing_avatar: false,
-       profile_changeset: Profile.changeset(user.profile, %{})
+       profile_changeset: Profile.changeset(socket.assigns.user.profile, %{})
      )
      |> allow_upload(:avatar, accept: ~w(.jpg .jpeg .png), max_entries: 1)}
   end
@@ -72,7 +64,8 @@ defmodule StrangerWeb.SettingsLive do
   @impl Phoenix.LiveView
   def handle_event("validate_profile", %{"profile" => params}, socket) do
     profile_changeset =
-      Profile.changeset(socket.assigns.user.profile, params)
+      socket.assigns.user.profile
+      |> Profile.changeset(params)
       |> Map.put(:action, :insert)
 
     {:noreply, assign(socket, profile_changeset: profile_changeset)}

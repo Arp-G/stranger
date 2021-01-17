@@ -11,42 +11,41 @@
     <script type="text/javascript" src="https://static.opentok.com/v2/js/opentok.min.js"></script>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">Stranger</a>
-        <%= if @conn.assigns[:user] do %>
-          <div>
-            <ul class="navbar-nav">
-              <li class="nav-item">
-                <%= live_redirect to: Routes.dashboard_path(@conn, :index) do %>
-                  <i class="fa fa-search" aria-hidden="true"></i>
-                  Search
-                <% end %>
-              </li>
-              <li class="nav-item">
-                <%= live_redirect to: Routes.conversations_path(@conn, :index) do %>
-                  <i class="fa fa-comments" aria-hidden="true"></i>
-                  Conversations
-                <% end %>
-              </li>
-              <li class="nav-item">
-                <%= live_redirect to: Routes.settings_path(@conn, :index) do %>
-                  <i class="fa fa-user" aria-hidden="true"></i>
-                  Account
-                <% end %>
-              </li>
-              <li class="nav-item">
-                <%= link to: Routes.session_path(@conn, :sign_out), method: :delete, title: "logout" do %>
-                  <i class="fa fa-sign-out" aria-hidden="true"></i>
-                  Log out
-                <% end %>
-              </li>
-            </ul>
-          </div>
-        <% end %>
-      </div>
-    </nav>
-
+    <%= if @conn.assigns[:user] do %>
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">Stranger</a>
+            <div>
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <%= live_redirect to: Routes.dashboard_path(@conn, :index) do %>
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    Search
+                  <% end %>
+                </li>
+                <li class="nav-item">
+                  <%= live_redirect to: Routes.conversations_path(@conn, :index) do %>
+                    <i class="fa fa-comments" aria-hidden="true"></i>
+                    Conversations
+                  <% end %>
+                </li>
+                <li class="nav-item">
+                  <%= live_redirect to: Routes.settings_path(@conn, :index) do %>
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                    Account
+                  <% end %>
+                </li>
+                <li class="nav-item">
+                  <%= link to: Routes.session_path(@conn, :sign_out), method: :delete, title: "logout" do %>
+                    <i class="fa fa-sign-out" aria-hidden="true"></i>
+                    Log out
+                </li>
+              </ul>
+            </div>
+          <% end %>
+        </div>
+      </nav>
+    <% end %>
     <%= @inner_content %>
   </body>
 </html>
