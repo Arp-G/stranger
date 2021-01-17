@@ -17,6 +17,27 @@ function handleError(error) {
 
 let Hooks = {};
 
+// ========= HIGHLIGHT CURRENT PAGE IN NAVBAR HOOK ==========
+
+/*
+The root layout containing the navbar is not a part of live view and is not rerendered on live_redirect.
+This hook is triggered whenever the top level container is remounted and it highlights the current
+active navbar link
+*/
+
+Hooks.OnRedirect = {
+  mounted() {
+    document.querySelectorAll('.nav-item a').forEach(elem => {
+      console.log("EXECUTED")
+      if (document.URL.endsWith(elem.pathname)) {
+        elem.parentElement.classList.add('active-nav');
+      }
+      else {
+        elem.parentElement.classList.remove("active-nav");
+      }
+    });
+  }
+}
 
 // ======== INIFINITE SCROLL HOOK =========
 
