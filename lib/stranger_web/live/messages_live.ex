@@ -23,7 +23,7 @@ defmodule StrangerWeb.MessagesLive do
        count: Messages.get_messages_count(conversation_id),
        messages: messages,
        page: 1,
-       conversation_id: conversation_id,
+       conversation: Conversations.get_conversation(conversation_id),
        stranger: stranger
      )}
   end
@@ -31,9 +31,12 @@ defmodule StrangerWeb.MessagesLive do
   @impl Phoenix.LiveView
   def render(assigns) do
     ~L"""
-    <h2> This conversation has <%= @count %> messages </h2>
-    <div>
-      <%= inspect @stranger %>
+    <%= live_component @socket, StrangerWeb.UserProfileComponent, user: @stranger %>
+    <br>
+    <div class="alert alert-primary" role="alert">
+      <%= "You matched with #{@stranger.profile.first_name} on #{Calendar.strftime(assigns.conversation.started_at, "%A, %B %d %Y")}" %>
+      <br>
+      <%= "There are #{@count} messages in this conversation" %>
     </div>
     <div phx-hook="InfiniteScroll" id="inifinite-scroll">
       <ul>
@@ -67,7 +70,7 @@ defmodule StrangerWeb.MessagesLive do
     assign(socket,
       messages:
         assigns.messages ++
-          Messages.list_messages_for_conversation(assigns.conversation_id, assigns.page)
+          Messages.list_messages_for_conversation(assigns.conversation._id, assigns.page)
     )
   end
 

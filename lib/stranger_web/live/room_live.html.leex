@@ -29,5 +29,7 @@
 <%= live_component @socket, StrangerWeb.ChatComponent, message_changeset: @message_changeset, messages: @messages, chat_box: @chat_box, unread_messages: @unread_messages %>
 
 <div id="stranger_details">
-  <%= inspect @stranger %>
+  <%= if @stranger do %>
+    <%= live_component @socket, StrangerWeb.UserProfileComponent, user: @stranger %>
+  <% end %>
 </div>

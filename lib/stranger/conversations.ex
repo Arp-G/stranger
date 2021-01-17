@@ -1,7 +1,13 @@
 defmodule Stranger.Conversations do
-  alias Stranger.{Accounts, Accounts.User}
+  alias Stranger.{Accounts, Accounts.User, Conversations.Conversation}
 
   @page_size 15
+
+  def get_conversation(%BSON.ObjectId{} = id) do
+    conv = Mongo.find_one(:mongo, "conversations", %{_id: id})
+    if conv, do: Conversation.to_struct(conv)
+  end
+
 
   def find_or_create_converastion(participant_one_id, participant_two_id) do
     find_lastest_conversation_for(participant_one_id, participant_one_id) ||

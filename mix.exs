@@ -51,6 +51,7 @@ defmodule Stranger.MixProject do
       {:poolboy, ">= 0.0.0"},
       {:argon2_elixir, "~> 2.0"},
       {:ex_opentok, github: "docJerem/ex_opentok"},
+      {:timex, "~> 3.6"},
 
       # dev, test
       {:phoenix_live_reload, "~> 1.2", only: :dev},

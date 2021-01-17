@@ -93,17 +93,29 @@
 html, body {
   margin: 0;
   height: 100%;
+  background-color: #DFCFBE;
 }
 
-img {
+.avatar_img {
   border: 1px solid #ddd; /* Gray border */
-  border-radius: 4px;  /* Rounded border */
+  border-radius: 50%;  /* Rounded border */
   padding: 5px; /* Some padding */
   width: 150px; /* Set a small width */
+  height: 150px;
+}
+
+.avatar-placeholder {
+  margin: auto;
+  font-size: 7em;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  padding: 10px 25px 10px 25px;
+  background: black;
+  color: white;
 }
 
 /* Add a hover effect (blue shadow) */
-img:hover {
+.avatar-placeholder:hover, .avatar_img:hover  {
   box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
 }
 
@@ -150,9 +162,10 @@ img:hover {
 
 #stranger_details {
   position: absolute;
-  top: 30%;
-  left: 70%;
+  top: 17px;
+  left: 44%;
   z-index: 101;
+  width: 1108px;
 }
 
 // CHAT COMPONENT STYLES

@@ -1,6 +1,7 @@
 defmodule StrangerWeb.LiveHelpers do
   alias Stranger.{Accounts, Uploaders.Avatar}
   import Phoenix.LiveView
+  use Phoenix.HTML
 
   def section_class(current_section, section) do
     if section != current_section, do: "d-none", else: ""
@@ -47,6 +48,24 @@ defmodule StrangerWeb.LiveHelpers do
       _ ->
         :ok
     end
+  end
+
+  def get_avatar_url(user) do
+    if user.profile.avatar do
+      img_tag(Avatar.url({user.profile.avatar, user}, signed: true), class: "avatar_img mx-auto")
+    else
+      ~E"""
+        <i class="fa fa-user avatar-placeholder" aria-hidden="true"></i>
+      """
+    end
+  end
+
+  def calculate_age(dob) do
+    Timex.diff(DateTime.utc_now(), dob, :duration)
+    |> Elixir.Timex.Format.Duration.Formatters.Humanized.format
+    |> String.split(",")
+    |> Enum.take(2)
+    |> Enum.join(",")
   end
 
   def assign_defaults(socket, %{"token" => token} = _session) do

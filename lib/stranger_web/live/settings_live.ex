@@ -137,7 +137,7 @@ defmodule StrangerWeb.SettingsLive do
       (avatar = assigns.user.profile.avatar) && !assigns.remove_existing_avatar &&
           is_nil(List.last(assigns.uploads.avatar.entries)) ->
         ~L"""
-          <%= img_tag(Avatar.url({avatar, assigns.user}, signed: true), class: "img-thumbnail") %>
+          <%= img_tag(Avatar.url({avatar, assigns.user}, signed: true), class: "avatar_img") %>
           <a href="#" phx-click="remove-existing-avatar">&times</a>
         """
 
