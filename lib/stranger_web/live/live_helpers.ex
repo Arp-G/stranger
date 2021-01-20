@@ -52,6 +52,14 @@ defmodule StrangerWeb.LiveHelpers do
 
   def get_avatar_url(user) do
     if user.profile.avatar do
+      Avatar.url({user.profile.avatar, user})
+    else
+      "https://www.kindpng.com/picc/m/80-800188_random-user-random-icon-png-transparent-png.png"
+    end
+  end
+
+  def get_avatar_img(user) do
+    if user.profile.avatar do
       img_tag(Avatar.url({user.profile.avatar, user}, signed: true), class: "avatar_img mx-auto")
     else
       ~E"""

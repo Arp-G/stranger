@@ -12,7 +12,7 @@ defmodule StrangerWeb.UserProfileComponent do
   def render(assigns) do
     ~L"""
       <div class="card w-50 mx-auto mt-5 pt-2">
-        <%= get_avatar_url(@user) %>
+        <%= get_avatar_img(@user) %>
         <div class="card-body mx-auto text-center">
           <h2><%= "#{@user.profile.first_name} #{@user.profile.last_name}" %></h2>
 

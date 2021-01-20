@@ -1,7 +1,7 @@
 defmodule StrangerWeb.DashboardLive do
   use StrangerWeb, :live_view
   use Phoenix.HTML
-  alias Stranger.UserTracker
+  alias Stranger.{UserTracker, Accounts}
 
   @topic "active_users"
 
@@ -16,7 +16,8 @@ defmodule StrangerWeb.DashboardLive do
      socket
      |> assign(
        status: :idle,
-       active_users: UserTracker.get_active_users_count()
+       active_users: UserTracker.get_active_users_count(),
+       stranger: nil
      )}
   end
 
@@ -43,8 +44,10 @@ defmodule StrangerWeb.DashboardLive do
         %{assigns: %{user: user}} = socket
       ) do
     if user._id in [user_1, user_2] do
+      stranger = if(user._id == user_1, do: user_2, else: user_1) |> Accounts.get_user()
+
       Process.send_after(self(), {:redirect_after_match, conversation_id}, 3000)
-      {:noreply, assign(socket, status: {:matched, conversation_id})}
+      {:noreply, assign(socket, status: {:matched, conversation_id}, stranger: stranger)}
     else
       {:noreply, socket}
     end
@@ -70,17 +73,32 @@ defmodule StrangerWeb.DashboardLive do
     UserTracker.remove_user(user._id, :active_users)
   end
 
-  defp dashboard_status(status) do
-    case status do
+  defp dashboard_status(assigns) do
+    case assigns.status do
       :searching ->
         ~E"""
-          Searching...
-          <button class="btn btn-primary" phx-click="stop_search">Stop Searching</button>
+          <div class="flex-container">
+            <div id="user">
+              <%= get_avatar_url(@user) |> img_tag %>
+            </div>
+            <div id="search">
+              <span id="search-text"> Searching... </span>
+            </div>
+            <div id="stranger"></div>
+          </div>
+          <div id="search-button">
+            <button class="btn btn-primary" phx-click="stop_search">Stop Searching</button>
+          </div>
         """
 
       {:matched, conversation_id} ->
         ~E"""
-          Found room <%= inspect(conversation_id) %>
+        <div class="flex-container">
+          <span> You have matched with <%= @stranger.profile.first_name %> </span>
+          <div id="user">
+            <%= get_avatar_url(@user) |> img_tag %>
+          </div>
+        </div>
         """
 
       _ ->
