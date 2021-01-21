@@ -46,7 +46,7 @@ defmodule StrangerWeb.DashboardLive do
     if user._id in [user_1, user_2] do
       stranger = if(user._id == user_1, do: user_2, else: user_1) |> Accounts.get_user()
 
-      Process.send_after(self(), {:redirect_after_match, conversation_id}, 3000)
+      Process.send_after(self(), {:redirect_after_match, conversation_id}, 300000)
       {:noreply, assign(socket, status: {:matched, conversation_id}, stranger: stranger)}
     else
       {:noreply, socket}
@@ -86,7 +86,7 @@ defmodule StrangerWeb.DashboardLive do
             </div>
             <div id="stranger"></div>
           </div>
-          <div id="search-button">
+          <div>
             <button class="btn btn-primary" phx-click="stop_search">Stop Searching</button>
           </div>
         """
@@ -103,7 +103,12 @@ defmodule StrangerWeb.DashboardLive do
 
       _ ->
         ~E"""
-        <button class="btn btn-primary" phx-click="search">Start Searching</button>
+        <div class="pre-search-flex-container">
+          <div id="user">
+            <%= get_avatar_url(@user) |> img_tag %>
+          </div>
+          <button class="btn btn-primary" phx-click="search">Start Searching</button>
+        </div>
         """
     end
   end

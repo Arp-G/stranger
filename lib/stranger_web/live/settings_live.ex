@@ -134,11 +134,12 @@ defmodule StrangerWeb.SettingsLive do
 
   defp img_preview(assigns) do
     cond do
-      (avatar = assigns.user.profile.avatar) && !assigns.remove_existing_avatar &&
-          is_nil(List.last(assigns.uploads.avatar.entries)) ->
+      !assigns.remove_existing_avatar && is_nil(List.last(assigns.uploads.avatar.entries)) ->
         ~L"""
-          <%= img_tag(Avatar.url({avatar, assigns.user}, signed: true), class: "avatar_img") %>
-          <a href="#" phx-click="remove-existing-avatar">&times</a>
+          <%= img_tag(get_avatar_url(assigns.user), class: "avatar_img") %>
+          <%= if assigns.user.profile.avatar do %>
+            <a href="#" phx-click="remove-existing-avatar">&times</a>
+          <% end %>
         """
 
       entry = List.last(assigns.uploads.avatar.entries) ->

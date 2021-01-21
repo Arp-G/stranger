@@ -52,9 +52,9 @@ defmodule StrangerWeb.LiveHelpers do
 
   def get_avatar_url(user) do
     if user.profile.avatar do
-      Avatar.url({user.profile.avatar, user})
+      Avatar.url({user.profile.avatar, user}, signed: true)
     else
-      "https://www.kindpng.com/picc/m/80-800188_random-user-random-icon-png-transparent-png.png"
+      StrangerWeb.Router.Helpers.static_path(StrangerWeb.Endpoint, "/images/avatar_placeholder.png")
     end
   end
 

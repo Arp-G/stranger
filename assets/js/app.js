@@ -28,7 +28,6 @@ active navbar link
 Hooks.OnRedirect = {
   mounted() {
     document.querySelectorAll('.nav-item a').forEach(elem => {
-      console.log("EXECUTED")
       if (document.URL.endsWith(elem.pathname)) {
         elem.parentElement.classList.add('active-nav');
       }

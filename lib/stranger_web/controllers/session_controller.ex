@@ -17,6 +17,11 @@ defmodule StrangerWeb.SessionController do
   end
 
   def sign_out(conn, _) do
+
+    # For some reason the live view terminate callback is not triggered on logout
+    # So we do it here
+    Stranger.UserTracker.remove_user(conn.assigns.user._id, :active_users)
+
     conn
     |> configure_session(renew: true)
     |> clear_session()
