@@ -10,7 +10,7 @@ defmodule StrangerWeb.LoginFormComponent do
   @impl true
   def render(assigns) do
     ~L"""
-    <div class="form-heading"> Login </div>
+    <div class="form_heading"> Login </div>
     <section class="login-section">
       <div class="form-group">
         <label for="email">Email</label>

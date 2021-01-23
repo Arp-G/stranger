@@ -270,7 +270,7 @@ html, body {
   width: 100px;
   height: 100px;
   margin: 20px;
-  background-image: url(/images/search_animation.svg);
+  background-image: url("/images/search_animation.svg");
   background-size: 200%;
   background-position: 150px 165px;
 }
@@ -291,15 +291,15 @@ html, body {
   width: 100px;
   height: 100px;
   position: relative;
-  animation: going-pass 2s linear infinite;
+  animation: going-pass 1.6s linear infinite;
   border-radius: 50%;
-  background-image: url("https://www.kindpng.com/picc/m/80-800188_random-user-random-icon-png-transparent-png.png");
+  background-image: url("/images/stranger.png");
   background-size: cover;
 }
 
 @keyframes going-pass {
   0% {
-    transform: translateY(-100px);
+    transform: translateY(-60px);
     opacity: 0
   }
 
@@ -308,7 +308,7 @@ html, body {
   }
 
   100% {
-    transform: translateY(100px);
+    transform: translateY(60px);
     opacity: 0;
   }
 }
@@ -320,12 +320,22 @@ html, body {
   }
 }
 
+.matched_message {
+  font-size: 1.2em;
+  font-weight: bold;
+  padding-right: 15px;
+  color: darkgreen;
+}
 
 // HOME STYLES
 
-body {
+.body- {
   background-image: url("/images/world.jpg");
   background-size: cover;
+}
+
+.body-settings, .body-dashboard {
+  background-color: #6666;
 }
 
 .home_heading {
@@ -334,10 +344,28 @@ body {
   font-size: 5em;
 }
 
-
 .home_subheading {
   font-size: 1.2em;
   font-weight: bold;
+}
+
+.home_form, .settings_form {
+  background: #fff;
+  border-radius: 2%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
+}
+
+.settings_form {
+  margin: auto;
+  width: 600px;
+  text-align: center;
+  padding: 20px 100px 20px 100px;
+  margin-top: 50px;
+  margin-bottom: 20px;
+
+  label {
+    font-weight: bold;
+  }
 }
 
 .home_form {
@@ -345,10 +373,7 @@ body {
   padding: 20px;
   right: 20px;
   top: 30px;
-  background: #fff;
   min-height: 450px;
-  border-radius: 2%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
 
   h3 {
     text-align: center;
@@ -363,15 +388,6 @@ body {
     top: 5%;
   }
 
-  .form-heading{
-    font-family: emoji;
-    font-size: 2em;
-    text-align: center;
-    font-style: italic;
-    font-weight: bold;
-    color: navy;
-  }
-
   img {
     max-height: 100px;
     max-width: 100px;
@@ -381,16 +397,25 @@ body {
     display: flex;
     justify-content: center;
   }
+}
 
- .required_field {
-   font-weight: bold;
-   color: red;
- }
+.form_heading{
+  font-family: emoji;
+  font-size: 2.2em;
+  text-align: center;
+  font-style: italic;
+  font-weight: bold;
+  color: navy;
+}
 
-//  .form_navigation {
-//   position: relative;
-//   bottom: 20px;
-//  }
+.settings_page_heading {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.required_field {
+  font-weight: bold;
+  color: red;
 }
 
 .next_button {

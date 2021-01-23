@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Potta+One&display=swap" rel="stylesheet">
     <script type="text/javascript" src="https://static.opentok.com/v2/js/opentok.min.js"></script>
   </head>
-  <body>
+  <body class="body-<%=@conn.path_info%>">
     <%= if @conn.assigns[:user] do %>
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">

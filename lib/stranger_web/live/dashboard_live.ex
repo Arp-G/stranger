@@ -87,14 +87,14 @@ defmodule StrangerWeb.DashboardLive do
             <div id="stranger"></div>
           </div>
           <div>
-            <button class="btn btn-primary" phx-click="stop_search">Stop Searching</button>
+            <button class="btn btn-danger" phx-click="stop_search">Stop Searching</button>
           </div>
         """
 
       {:matched, conversation_id} ->
         ~E"""
         <div class="flex-container">
-          <span> You have matched with <%= @stranger.profile.first_name %> </span>
+          <span class="matched_message"> You have matched with <%= @stranger.profile.first_name %> </span>
           <div id="user">
             <%= get_avatar_url(@user) |> img_tag %>
           </div>
@@ -108,7 +108,7 @@ defmodule StrangerWeb.DashboardLive do
             <%= get_avatar_url(@user) |> img_tag %>
           </div>
         </div>
-        <button class="btn btn-primary" phx-click="search">Start Searching</button>
+        <button class="btn btn-success" phx-click="search">Start Searching</button>
         """
     end
   end

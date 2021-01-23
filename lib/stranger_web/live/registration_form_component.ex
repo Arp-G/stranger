@@ -3,17 +3,17 @@ defmodule StrangerWeb.RegistrationFormComponent do
 
   def render(assigns) do
     ~L"""
-      <div class="form-heading"> Create Profile </div>
+      <div class="form_heading"> Create Profile </div>
       <%= f = form_for @changeset, "#", [phx_change: :validate, phx_submit: :save] %>
         <section class="<%= section_class(@section, 1) %>">
-          <p>
+          <div class="form-group">
             <span class="required_field"> * </span>
             <%= label f, :email %>
             <%= email_input f, :email, phx_blur: "validate_email", class: "form-control" %>
             <p><%= error_tag f, :email %></p>
-          </p>
+          </div>
 
-          <p>
+          <div class="form-group">
             <span class="required_field"> * </span>
             <%= label f, :password %>
             <%= password_input f, :password, value: input_value(f, :password), class: "form-control" %>
@@ -23,7 +23,7 @@ defmodule StrangerWeb.RegistrationFormComponent do
             <%= label f, :password_confirmation %>
             <%= password_input f, :password_confirmation, value: input_value(f, :password_confirmation), class: "form-control" %>
             <p><%= error_tag f, :password_confirmation %></p>
-          </p>
+          </div>
         </section>
 
         <section class="<%= section_class(@section, 2) %>">

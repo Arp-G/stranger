@@ -156,80 +156,87 @@ defmodule StrangerWeb.SettingsLive do
   @impl Phoenix.LiveView
   def render(assigns) do
     ~L"""
-    <h2> Update Profile </h2>
-    <div>
+    <div class="settings_form">
+    <div class="form_heading settings_page_heading"> Update Profile </div>
       <%= f = form_for @profile_changeset, "#", [phx_change: :validate_profile, phx_submit: :update_profile] %>
-        <p>
+        <div class="form-group">
           <%= img_preview(assigns) %>
-        </p>
-        <p>
+        </div>
+
+        <div class="form-group">
           <%= live_file_input @uploads.avatar, phx_blur: :on_upload %>
           <p><%= error_tag f, :avatar %></p>
           <br>
           <%= if entry = List.last(@uploads.avatar.entries) do %>
             Uploaded - <strong><%= entry.progress %>%</strong>
           <% end %>
-        </p>
+        </div>
 
-        <p>
+        <div class="form-group">
+          <span class="required_field"> * </span>
           <%= label f, :first_name %>
-          <%= text_input f, :first_name %>
+          <%= text_input f, :first_name, class: "form-control" %>
           <p><%= error_tag f, :first_name %></p>
-        </p>
+        </div>
 
-        <p>
+        <div class="form-group">
+          <span class="required_field"> * </span>
           <%= label f, :last_name %>
-          <%= text_input f, :last_name %>
+          <%= text_input f, :last_name, class: "form-control" %>
           <p><%= error_tag f, :last_name %></p>
-        </p>
+        </div>
 
-        <p>
+        <div class="form-group">
           <%= label f, :dob %>
-          <%= date_input f, :dob, value: format_date(f) %>
+          <%= date_input f, :dob, value: format_date(f), class: "form-control" %>
           <p><%= error_tag f, :dob %></p>
-        </p>
+        </div>
 
-        <p>
+        <div class="form-group">
           <%= label f, :country %>
-          <%= text_input f, :country %>
+          <%= text_input f, :country, class: "form-control" %>
           <p><%= error_tag f, :country %></p>
-        </p>
+        </div>
 
-        <p>
+        <div class="form-group">
           <%= label f, :bio %>
-          <%= textarea f, :bio %>
+          <%= textarea f, :bio, class: "form-control", placeholder: "Write something about yourself. You can mention your hobbies, passion, etc", rows: 5 %>
           <p><%= error_tag f, :bio %></p>
-        </p>
+        </div>
 
-        <p>
-          <%= submit "Update Profile", "phx-disable-with": "Saving...", class: "btn btn-primary" %>
-        </p>
+        <div class="form-group">
+          <%= submit "Update Profile", "phx-disable-with": "Saving...", class: "btn btn-success" %>
+        </div>
       </form>
+    </div>
 
       <hr>
-      <h2> Update Password </h2>
+
+    <div class="settings_form">
+     <div class="form_heading settings_page_heading"> Change Password </div>
 
       <%= f = form_for @password_changeset, "#", [phx_change: :validate_password, phx_submit: :update_password] %>
         <p>
-
-          <p>
+          <div class="form-group">
             <%= label f, :current_password %>
-            <%= password_input f, :current_password, value: input_value(f, :current_password) %>
-          </p>
+            <%= password_input f, :current_password, value: input_value(f, :current_password), class: "form-control" %>
+          </div>
 
-          <%= label f, :password %>
-          <%= password_input f, :password, value: input_value(f, :password) %>
-          <br><br>
-          <p><%= error_tag f, :password %></p>
+          <div class="form-group">
+            <%= label f, "New password" %>
+            <%= password_input f, :password, value: input_value(f, :password), class: "form-control" %>
+            <p><%= error_tag f, :password %></p>
+          </div>
 
-          <%= label f, :password_confirmation %>
-          <%= password_input f, :password_confirmation, value: input_value(f, :password_confirmation) %>
-          <p><%= error_tag f, :password_confirmation %></p>
-
+          <div class="form-group">
+            <%= label f, :password_confirmation %>
+            <%= password_input f, :password_confirmation, value: input_value(f, :password_confirmation), class: "form-control" %>
+            <p><%= error_tag f, :password_confirmation %></p>
+          </div>
         </p>
-        <p>
-          <%= submit "Update password", "phx-disable-with": "Saving...", class: "btn btn-primary" %>
-        </p>
+        <div class="form-group">
+          <%= submit "Update password", "phx-disable-with": "Saving...", class: "btn btn-warning" %>
+        </div>
       </form>
     </div>
     """
