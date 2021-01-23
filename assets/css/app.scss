@@ -214,13 +214,34 @@ html, body {
 
 // DASHBOARD PAGE STYLES
 
+.flex-container, .pre-search-flex-container {
+  background-color: white;
+  height: 200px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  margin-bottom: 15px;
+  padding: 50px;
+}
+
 .flex-container {
   display: flex;
   flex-wrap: nowrap;
-  background-color: white;
   justify-content: center;
   align-items: center;
+}
+
+.pre-search-flex-container {
   height: 200px;
+  display: flex;
+  flex-direction: column;
+
+  #user {
+    width: 120px;
+  }
+
+  div {
+    margin-bottom: 50px;
+  }
 }
 
 .dashboard_top {
@@ -238,7 +259,8 @@ html, body {
 }
 
 #user img {
-  width: 80px;
+  width: 100px;
+  height: 120px;
   border-radius: 50%;
   display: block;
   margin: auto;
@@ -258,21 +280,6 @@ html, body {
   text-align: center;
   display: block;
   padding-top: 10px;
-}
-
-.pre-search-flex-container {
-  height: 200px;
-  display: flex;
-  flex-direction: column;
-
-  #user {
-    width: 120px;
-  }
-
-  div {
-    margin-top: 50px;
-    margin-bottom: 50px;
-  }
 }
 
 .search-button {
@@ -311,4 +318,82 @@ html, body {
     motion-offset: 100%;
     offset-distance: 100%;
   }
+}
+
+
+// HOME STYLES
+
+body {
+  background-image: url("/images/world.jpg");
+  background-size: cover;
+}
+
+.home_heading {
+  color: white;
+  font-family: 'Potta One', cursive;
+  font-size: 5em;
+}
+
+
+.home_subheading {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.home_form {
+  position: absolute;
+  padding: 20px;
+  right: 20px;
+  top: 30px;
+  background: #fff;
+  min-height: 450px;
+  border-radius: 2%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
+
+  h3 {
+    text-align: center;
+  }
+
+  .form-link {
+    padding-top: 20px;
+  }
+
+  .login-section{
+    position: relative;
+    top: 5%;
+  }
+
+  .form-heading{
+    font-family: emoji;
+    font-size: 2em;
+    text-align: center;
+    font-style: italic;
+    font-weight: bold;
+    color: navy;
+  }
+
+  img {
+    max-height: 100px;
+    max-width: 100px;
+  }
+
+  .avatar-input {
+    display: flex;
+    justify-content: center;
+  }
+
+ .required_field {
+   font-weight: bold;
+   color: red;
+ }
+
+//  .form_navigation {
+//   position: relative;
+//   bottom: 20px;
+//  }
+}
+
+.next_button {
+  position: absolute;
+  right: 10px;
 }

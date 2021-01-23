@@ -107,8 +107,8 @@ defmodule StrangerWeb.DashboardLive do
           <div id="user">
             <%= get_avatar_url(@user) |> img_tag %>
           </div>
-          <button class="btn btn-primary" phx-click="search">Start Searching</button>
         </div>
+        <button class="btn btn-primary" phx-click="search">Start Searching</button>
         """
     end
   end

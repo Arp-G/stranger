@@ -98,7 +98,7 @@ defmodule StrangerWeb.HomeLive do
 
   @impl Phoenix.LiveView
   def handle_event("next", _args, %{assigns: %{section: section_number}} = socket) do
-    section_number = if section_number < 2, do: section_number + 1, else: section_number
+    section_number = if section_number < 3, do: section_number + 1, else: section_number
     {:noreply, assign(socket, section: section_number)}
   end
 

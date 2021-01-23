@@ -10,25 +10,27 @@ defmodule StrangerWeb.LoginFormComponent do
   @impl true
   def render(assigns) do
     ~L"""
-    <section>
-      <p>
+    <div class="form-heading"> Login </div>
+    <section class="login-section">
+      <div class="form-group">
         <label for="email">Email</label>
-        <input id="email" name="email" type="email" phx-blur="update_email" phx-target="<%= @myself %>">
-      </p>
+        <input id="email" name="email" type="email" phx-blur="update_email" phx-target="<%= @myself %>" class="form-control">
+      </div>
 
-      <p>
+      <div class="form-group">
         <label for="password">Password</label>
-        <input id="password" name="password" type="password" phx-blur="update_password" phx-target="<%= @myself %>">
-      </p>
+        <input id="password" name="password" type="password" phx-blur="update_password" phx-target="<%= @myself %>" class="form-control">
+      </div>
 
-      <p>
-        <button class="btn btn-primary" phx-click="sign_in" phx-target="<%= @myself %>">Sign in</button>
-      </p>
-      <p>
+      <div class="form-group">
+        <button class="btn btn-success" phx-click="sign_in" phx-target="<%= @myself %>">Sign in</button>
+      <div>
+
+      <div class="form-group form-link">
         <a href="#" phx-click="jump_to_1">
           Don't have an Account? Sign Up here.
         </a>
-      </p>
+      </div>
     </section>
     """
   end

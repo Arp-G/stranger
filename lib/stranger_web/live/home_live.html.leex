@@ -1,17 +1,22 @@
 <section>
-  <h1>Stranger - Find your next pen friend</h1>
+  <span class="home_heading">
+    Stranger
+  </span>
+  <p class="home_subheading"> Find your next friend... </p>
 
-  <%= if @section == 0 do %>
-    <%= live_component @socket, StrangerWeb.LoginFormComponent, id: :login %>
-  <% else %>
-    <%= live_component @socket, StrangerWeb.RegistrationFormComponent, changeset: @changeset, section: @section, uploads: @uploads %>
-    <p>
-      <%= if @section == 2 do %>
-        <button class="btn btn-primary" phx-click="prev">Back</button>
-      <% end %>
-      <%= if @section == 1 do %>
-        <button class="btn btn-primary" phx-click="next">Next</button>
-      <% end %>
-    </p>
-  <% end %>
+  <div class="home_form">
+    <%= if @section == 0 do %>
+      <%= live_component @socket, StrangerWeb.LoginFormComponent, id: :login %>
+    <% else %>
+      <%= live_component @socket, StrangerWeb.RegistrationFormComponent, changeset: @changeset, section: @section, uploads: @uploads %>
+      <div class="form_navigation">
+        <%= if @section in [2, 3] do %>
+          <button class="btn btn-dark back_button" phx-click="prev">Back</button>
+        <% end %>
+        <%= if @section in [1, 2] do %>
+          <button class="btn btn-dark next_button" phx-click="next">Next</button>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 </section>

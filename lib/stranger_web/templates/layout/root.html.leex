@@ -8,6 +8,8 @@
     <%= live_title_tag assigns[:page_title] || "Stranger", suffix: " · Phoenix Framework" %>
     <link phx-track-static rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
     <script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Potta+One&display=swap" rel="stylesheet">
     <script type="text/javascript" src="https://static.opentok.com/v2/js/opentok.min.js"></script>
   </head>
   <body>
