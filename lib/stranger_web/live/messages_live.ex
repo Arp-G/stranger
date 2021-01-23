@@ -31,28 +31,26 @@ defmodule StrangerWeb.MessagesLive do
   @impl Phoenix.LiveView
   def render(assigns) do
     ~L"""
-    <%= live_component @socket, StrangerWeb.UserProfileComponent, user: @stranger %>
-    <br>
     <div class="alert alert-primary" role="alert">
       <%= "You matched with #{@stranger.profile.first_name} on #{Calendar.strftime(assigns.conversation.started_at, "%A, %B %d %Y")}" %>
       <br>
       <%= "There are #{@count} messages in this conversation" %>
     </div>
-    <div phx-hook="InfiniteScroll" id="inifinite-scroll">
-      <ul>
+    <%= live_component @socket, StrangerWeb.UserProfileComponent, user: @stranger %>
+    <br>
+    <%= if !Enum.empty?(@messages) do %>
+      <div class="form_heading"> Messages </div>
+      <div phx-hook="InfiniteScroll" id="inifinite-scroll" class="messages-container">
         <%= for message <- @messages do %>
-          <li id="chat-<%= message._id %>">
-          <strong> <%= get_sender_name(message, @user, @stranger) %> </strong>
-          <br>
-          <p>
-            <%= message.content %>
-          </p>
-          <br>
-          <br>
-          </li>
+          <div id="chat-<%= message._id %>" class="<%= get_msg_bubble_class(message, @user) %>">
+            <small class="message-sender"> <%= get_sender_name(message, @user, @stranger) %> </small>
+            <p>
+              <%= message.content %>
+            </p>
+          </div>
         <% end %>
-      </ul>
-    </div>
+      </div>
+    <% end %>
     """
   end
 
@@ -77,6 +75,10 @@ defmodule StrangerWeb.MessagesLive do
   defp get_sender_name(message, user, stranger) do
     sender = if message.sender_id == user._id, do: user, else: stranger
 
-    "#{sender.profile.first_name} #{sender.profile.last_name}"
+    sender.profile.first_name
+  end
+
+  defp get_msg_bubble_class(message, user) do
+    if message.sender_id == user._id, do: "bubble bubble-bottom-left", else: "bubble bubble-bottom-right"
   end
 end

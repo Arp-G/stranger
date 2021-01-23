@@ -46,7 +46,7 @@ defmodule StrangerWeb.DashboardLive do
     if user._id in [user_1, user_2] do
       stranger = if(user._id == user_1, do: user_2, else: user_1) |> Accounts.get_user()
 
-      Process.send_after(self(), {:redirect_after_match, conversation_id}, 300000)
+      Process.send_after(self(), {:redirect_after_match, conversation_id}, 3000)
       {:noreply, assign(socket, status: {:matched, conversation_id}, stranger: stranger)}
     else
       {:noreply, socket}

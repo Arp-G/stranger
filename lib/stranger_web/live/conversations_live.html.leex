@@ -1,14 +1,20 @@
-<h2> You have been in <%= @count %> conversations </h2>
+<div class="conversations_heading"> You have been in <%= @count %> conversations </div>
 <div phx-hook="InfiniteScroll" id="inifinite-scroll">
-  <ul>
+  <div class="list-group">
   <%= for conv <- @conversations do %>
-    <li>
-      <%= link to: Routes.messages_path(@socket, :index, BSON.ObjectId.encode!(conv.id)) do %>
-        <strong> <%= "#{conv.user.profile.first_name} #{conv.user.profile.last_name}"  %> </strong> <br>
-        <strong> Duration: <%= conv.duration %> </strong> <br>
-        <strong> On: <%= inspect conv.on %> </strong>
-      <% end %>
-    </li>
+    <%= link to: Routes.messages_path(@socket, :index, BSON.ObjectId.encode!(conv.id)), class: "list-group-item list-group-item-action flex-column align-items-start" do %>
+      <h5 class="mb-1"><%= "#{conv.user.profile.first_name} #{conv.user.profile.last_name}"  %></h5>
+      Lasted for:
+      <span class="badge badge-info">
+        <%= conv.duration |> Timex.Duration.from_seconds() |> Timex.Format.Duration.Formatters.Humanized.format() %>
+      </span>
+      <div class="conversation-info">
+        <div>
+          <small><%= Timex.Format.DateTime.Formatters.Relative.format!(conv.on, "{relative}") %></small><br>
+          <span class="<%= if(conv.messages_count == 0, do: "badge badge-primary", else: "badge badge-success") %>">Messages: <%= conv.messages_count %></span>
+        </div>
+      </div>
+    <% end %>
   <% end %>
-  </ul>
+  </div>
 </div>

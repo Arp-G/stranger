@@ -8,7 +8,6 @@ defmodule Stranger.Conversations do
     if conv, do: Conversation.to_struct(conv)
   end
 
-
   def find_or_create_converastion(participant_one_id, participant_two_id) do
     find_lastest_conversation_for(participant_one_id, participant_one_id) ||
       create_conversation(%{
@@ -107,6 +106,22 @@ defmodule Stranger.Conversations do
       )
       |> Enum.to_list()
 
+    conversations_ids = conversations |> Enum.map(& &1["_id"])
+
+    messages_count_in_conversations =
+      Mongo.aggregate(:mongo, "messages", [
+        %{"$match" => %{"conversation_id" => %{"$in" => conversations_ids}}},
+        %{
+          "$group" => %{
+            "_id" => "$conversation_id",
+            "count" => %{"$sum" => 1}
+          }
+        }
+      ])
+      |> Enum.into(%{}, fn %{"_id" => conv_id, "count" => count} ->
+        {conv_id, count}
+      end)
+
     users_map = get_stranger_profiles_from_conversations(conversations, user)
 
     conversations
@@ -115,7 +130,8 @@ defmodule Stranger.Conversations do
         id: conv["_id"],
         on: conv["started_at"],
         duration: DateTime.diff(conv["ended_at"], conv["started_at"]),
-        user: Map.get(users_map, get_participant(conv, user))
+        user: Map.get(users_map, get_participant(conv, user)),
+        messages_count: messages_count_in_conversations[conv["_id"]] || 0
       }
     end)
   end

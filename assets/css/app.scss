@@ -334,7 +334,7 @@ html, body {
   background-size: cover;
 }
 
-.body-settings, .body-dashboard {
+body:not(.body-) {
   background-color: #6666;
 }
 
@@ -421,4 +421,91 @@ html, body {
 .next_button {
   position: absolute;
   right: 10px;
+}
+
+// CONVERSATIONS AND MESSAGES STYLES
+.conversation-info {
+  position: absolute;
+  right: 10px;
+  top: 0;
+  padding: 10px;
+}
+
+.conversations_heading {
+  font-family: emoji;
+  font-size: 2.2em;
+  text-align: center;
+  font-weight: bold;
+  color: navy;
+  margin-top: 50px;
+}
+
+#inifinite-scroll {
+  margin-top: 50px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
+}
+
+.messages-container {
+  background-color: skyblue;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 50px;
+}
+
+.bubble {
+  position: relative;
+  font-family: sans-serif;
+  font-size: 18px;
+  line-height: 24px;
+  max-width: 300px;
+  min-height: 70px;
+  background-color: lightyellow;
+  color: black;
+  border-radius: 40px;
+  text-align: center;
+  color: #000;
+  padding-top: 20px;
+  margin-bottom: 50px;
+}
+
+.bubble-bottom-left {
+  position: relative;
+  left: 20px;
+}
+
+.bubble-bottom-right {
+  position: relative;
+  left: 72%;
+}
+
+.bubble-bottom-left:before, .bubble-bottom-right:before {
+  content: "";
+  width: 0px;
+  height: 0px;
+  position: absolute;
+  bottom: -24px;
+}
+
+.bubble-bottom-left:before {
+  border-left: 24px solid lightyellow;
+  border-right: 12px solid transparent;
+  border-top: 12px solid lightyellow;
+  border-bottom: 20px solid transparent;
+  left: 32px;
+}
+
+.bubble-bottom-right:before {
+  border-right: 24px solid lightyellow;
+  border-left: 12px solid transparent;
+  border-top: 12px solid lightyellow;
+  border-bottom: 20px solid transparent;
+  right: 32px;
+}
+
+.message-sender {
+  position: absolute;
+  font-weight: bold;
+  top: 10px;
+  left: 20px;
 }
