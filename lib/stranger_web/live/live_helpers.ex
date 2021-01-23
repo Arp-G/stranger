@@ -90,6 +90,16 @@ defmodule StrangerWeb.LiveHelpers do
     end
   end
 
+  def get_sender_name(message, user, stranger) do
+    sender = if message.sender_id == user._id, do: user, else: stranger
+
+    sender.profile.first_name
+  end
+
+  def get_msg_bubble_class(message, user) do
+    if message.sender_id == user._id, do: "bubble bubble-bottom-left", else: "bubble bubble-bottom-right"
+  end
+
   defp redirect_to_login(socket) do
     socket
     |> put_flash(:error, "You must be logged in to access that page")

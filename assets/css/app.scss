@@ -509,3 +509,34 @@ body:not(.body-) {
   top: 10px;
   left: 20px;
 }
+
+.small-bubble {
+  max-width: 100px;
+  font-size: 0.8em;
+  margin-bottom: 25px;
+  min-height: 50px;
+  padding-top: 10px;
+}
+
+#chat_box .bubble-bottom-left {
+  position: relative !important;
+  left: -35px !important;
+}
+
+#chat_box .bubble-bottom-right {
+  position: relative !important;
+  left: 130px !important;
+}
+
+#chat_box .message-sender {
+  position: relative;
+  font-weight: bold;
+  top: 10px;
+  left: 0px;
+  position: relative;
+  top: -10px;
+}
+
+.chat-content {
+  word-break: break-all;
+}

@@ -71,14 +71,4 @@ defmodule StrangerWeb.MessagesLive do
           Messages.list_messages_for_conversation(assigns.conversation._id, assigns.page)
     )
   end
-
-  defp get_sender_name(message, user, stranger) do
-    sender = if message.sender_id == user._id, do: user, else: stranger
-
-    sender.profile.first_name
-  end
-
-  defp get_msg_bubble_class(message, user) do
-    if message.sender_id == user._id, do: "bubble bubble-bottom-left", else: "bubble bubble-bottom-right"
-  end
 end

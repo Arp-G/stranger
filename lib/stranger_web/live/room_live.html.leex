@@ -26,7 +26,7 @@
 
 <button id="end_meeting_button" type="button" phx-click="leave_room" class="btn btn-primary">End Conversation</button>
 
-<%= live_component @socket, StrangerWeb.ChatComponent, message_changeset: @message_changeset, messages: @messages, chat_box: @chat_box, unread_messages: @unread_messages %>
+<%= live_component @socket, StrangerWeb.ChatComponent, user: @user, stranger: @stranger, message_changeset: @message_changeset, messages: @messages, chat_box: @chat_box, unread_messages: @unread_messages %>
 
 <div id="stranger_details">
   <%= if @stranger do %>
