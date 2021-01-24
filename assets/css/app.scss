@@ -90,6 +90,9 @@
   margin: -1rem 0 2rem;
 }
 
+// ------------------------------------ MY CUSTOM CSS -------------------------
+
+
 html, body {
   margin: 0;
   height: 100%;
@@ -132,12 +135,13 @@ html, body {
 }
 
 // VIDEO PAGE STYLES
+
 .subscriber {
   position: absolute !important;
   left: 0;
   top: 55px;
   width: 60%  !important;
-  height: 90% !important;
+  height: 92vh !important;
   z-index: 10;
 }
 
@@ -161,56 +165,16 @@ html, body {
 
 #stranger_details {
   position: absolute;
-  top: 17px;
-  left: 44%;
+  top: 57px;
+  left: 61%;
   z-index: 101;
-  width: 1108px;
+  width: 585px;
 }
 
-// CHAT COMPONENT STYLES
-
-#chat_box {
-  position: absolute;
-  bottom: 10px;
-  right: 5%;
-  z-index: 101;
-  width: 300px;
-  border: 2px solid black;
-  overflow-y: auto;
-
-  #messages {
-    height: 200px;
-    border: 2px solid blue;
-  }
+#stranger_details > div {
+  margin-top: 0 !important;
+  width: 100% !important;
 }
-
-.chat_input {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  position: sticky;
-  bottom: 0px;
-}
-
-.chat_header {
-  position: sticky;
-  top: 0;
-  width: 100%;
-  background-color: orange;
-}
-
-.close {
-  height: 35px;
-}
-
-.close #messages, .close .chat_input {
-  display: none;
-}
-
-.open {
-  height: 250px;
-}
-
 
 // DASHBOARD PAGE STYLES
 
@@ -330,7 +294,7 @@ html, body {
 // HOME STYLES
 
 .body- {
-  background-image: url("/images/world.jpg");
+  background-image: url("/images/friends.jpg");
   background-size: cover;
 }
 
@@ -424,6 +388,7 @@ body:not(.body-) {
 }
 
 // CONVERSATIONS AND MESSAGES STYLES
+
 .conversation-info {
   position: absolute;
   right: 10px;
@@ -438,6 +403,10 @@ body:not(.body-) {
   font-weight: bold;
   color: navy;
   margin-top: 50px;
+}
+
+.profile-error {
+  margin-top: 20px;
 }
 
 #inifinite-scroll {
@@ -460,21 +429,26 @@ body:not(.body-) {
   line-height: 24px;
   max-width: 300px;
   min-height: 70px;
-  background-color: lightyellow;
   color: black;
   border-radius: 40px;
   text-align: center;
   color: #000;
   padding-top: 20px;
   margin-bottom: 50px;
+
+  p {
+    padding: 20px;
+  }
 }
 
 .bubble-bottom-left {
+  background-color: #DAA514;
   position: relative;
   left: 20px;
 }
 
 .bubble-bottom-right {
+  background-color: cornflowerblue;
   position: relative;
   left: 72%;
 }
@@ -488,44 +462,107 @@ body:not(.body-) {
 }
 
 .bubble-bottom-left:before {
-  border-left: 24px solid lightyellow;
+  border-left: 24px solid #DAA514;
   border-right: 12px solid transparent;
-  border-top: 12px solid lightyellow;
+  border-top: 12px solid #DAA514;
   border-bottom: 20px solid transparent;
   left: 32px;
 }
 
 .bubble-bottom-right:before {
-  border-right: 24px solid lightyellow;
+  border-right: 24px solid cornflowerblue;
   border-left: 12px solid transparent;
-  border-top: 12px solid lightyellow;
+  border-top: 12px solid cornflowerblue;
   border-bottom: 20px solid transparent;
   right: 32px;
 }
 
 .message-sender {
   position: absolute;
+  font-size: 1.4em;
   font-weight: bold;
   top: 10px;
   left: 20px;
 }
 
 .small-bubble {
-  max-width: 100px;
-  font-size: 0.8em;
-  margin-bottom: 25px;
+  max-width: 190px;
+  font-size: 0.7em;
+  margin-bottom: 40px;
+  margin-top: 10px;
   min-height: 50px;
   padding-top: 10px;
 }
 
+// CHAT COMPONENT STYLES
+
+#chat_box {
+  position: absolute;
+  bottom: 56px;
+  right: 5px;
+  z-index: 200;
+  height: 500px;
+  width: 500px;
+  border-radius: 10px;
+  overflow-y: auto;
+  background-image: url("/images/chat_background.jpg");
+  background-size: contain;
+  opacity: 1;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+
+  #messages {
+    height: 200px;
+    border: 2px solid blue;
+  }
+}
+
+.chat_input {
+  position: absolute;
+  right: 5px;
+  width: 500px;
+  bottom: 0;
+  height: 56px;
+
+  .form-group {
+    display: flex;
+    flex-direction: row;
+  }
+
+  input {
+    height: 53px;
+  }
+}
+
+.chat_header {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background-color: orange;
+  z-index: 250;
+  overflow: hidden;
+  height: 38px;
+  background-color: #4267B2;
+  color: white;
+}
+
+.close {
+  height: 40px !important;
+  bottom: 0 !important;
+}
+
+.chat_input_close {
+  display: none;
+}
+
 #chat_box .bubble-bottom-left {
   position: relative !important;
-  left: -35px !important;
+  left: 7px !important;
 }
 
 #chat_box .bubble-bottom-right {
   position: relative !important;
-  left: 130px !important;
+  left: 286px !important;
 }
 
 #chat_box .message-sender {
@@ -537,6 +574,60 @@ body:not(.body-) {
   top: -10px;
 }
 
+.chat_messages_close {
+  display: none;
+}
+
 .chat-content {
   word-break: break-all;
+  position: relative;
+  top: -24px;
+  padding: 10px;
+  font-size: 1.3em;
+}
+
+.blinking {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: red;
+  box-shadow: 2px 2px 5px 2px red;
+  animation: blink 1s ease infinite;
+  position: relative;
+  bottom: 4px;
+  margin-right: 3px;
+  display: inline-block;
+}
+
+@keyframes blink {
+  from, to {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* SCROLLBAR STYLE */
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px light-grey;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: light-grey;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(255,0,0,0.4);
 }

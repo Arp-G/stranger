@@ -48,7 +48,7 @@ defmodule Stranger.Accounts.User do
       required: true,
       message: "does not match password"
     )
-    |> validate_format(:password, ~r/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/)
+    |> validate_length(:password, min: 5, max: 50)
   end
 
   def validate_unique_email(%Ecto.Changeset{changes: %{email: email}} = changeset) do

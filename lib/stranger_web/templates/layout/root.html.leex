@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <%= csrf_meta_tag() %>
-    <%= live_title_tag assigns[:page_title] || "Stranger", suffix: " · Phoenix Framework" %>
+    <%= live_title_tag assigns[:page_title] || "Stranger", suffix: " · Find a friend" %>
     <link phx-track-static rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
     <script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -16,7 +16,7 @@
     <%= if @conn.assigns[:user] do %>
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">Stranger</a>
+          <a class="navbar-brand" href="<%= Routes.dashboard_path(@conn, :index) %>">Stranger</a>
             <ul class="navbar-nav ml-auto">
               <li class="nav-item">
                 <%= live_redirect to: Routes.dashboard_path(@conn, :index) do %>

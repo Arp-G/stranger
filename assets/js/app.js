@@ -25,19 +25,6 @@ This hook is triggered whenever the top level container is remounted and it high
 active navbar link
 */
 
-Hooks.OnRedirect = {
-  mounted() {
-    document.querySelectorAll('.nav-item a').forEach(elem => {
-      if (document.URL.endsWith(elem.pathname)) {
-        elem.parentElement.classList.add('active-nav');
-      }
-      else {
-        elem.parentElement.classList.remove("active-nav");
-      }
-    });
-  }
-}
-
 // ======== INIFINITE SCROLL HOOK =========
 
 let scrollAt = () => {
@@ -136,6 +123,28 @@ function subscribeWhenReady(session, stream, id) {
     session.subscribe(stream, 'subscriber-div-' + id);
   } else {
     setTimeout(() => { subscribeWhenReady(session, stream, id) }, 500);
+  }
+}
+
+// =========== SCROLL TO LATEST CHAT MESSAGE ON NEW MESSAGE ============
+
+Hooks.OnNewChatMsg = {
+  updated () {
+    let chats = document.getElementsByClassName("bubble");
+    chats[chats.length - 1] && chats[chats.length - 1].scrollIntoView({ behavior: "smooth" });
+  }
+}
+
+Hooks.OnRedirect = {
+  mounted() {
+    document.querySelectorAll('.nav-item a').forEach(elem => {
+      if (document.URL.endsWith(elem.pathname)) {
+        elem.parentElement.classList.add('active-nav');
+      }
+      else {
+        elem.parentElement.classList.remove("active-nav");
+      }
+    });
   }
 }
 

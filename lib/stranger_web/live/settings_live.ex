@@ -165,7 +165,7 @@ defmodule StrangerWeb.SettingsLive do
 
         <div class="form-group">
           <%= live_file_input @uploads.avatar, phx_blur: :on_upload %>
-          <p><%= error_tag f, :avatar %></p>
+          <p class="profile-error"><%= error_tag f, :avatar %></p>
           <br>
           <%= if entry = List.last(@uploads.avatar.entries) do %>
             Uploaded - <strong><%= entry.progress %>%</strong>
@@ -176,32 +176,32 @@ defmodule StrangerWeb.SettingsLive do
           <span class="required_field"> * </span>
           <%= label f, :first_name %>
           <%= text_input f, :first_name, class: "form-control" %>
-          <p><%= error_tag f, :first_name %></p>
+          <p class="profile-error"><%= error_tag f, :first_name %></p>
         </div>
 
         <div class="form-group">
           <span class="required_field"> * </span>
           <%= label f, :last_name %>
           <%= text_input f, :last_name, class: "form-control" %>
-          <p><%= error_tag f, :last_name %></p>
+          <p class="profile-error"><%= error_tag f, :last_name %></p>
         </div>
 
         <div class="form-group">
           <%= label f, :dob %>
           <%= date_input f, :dob, value: format_date(f), class: "form-control" %>
-          <p><%= error_tag f, :dob %></p>
+          <p class="profile-error"><%= error_tag f, :dob %></p>
         </div>
 
         <div class="form-group">
           <%= label f, :country %>
           <%= text_input f, :country, class: "form-control" %>
-          <p><%= error_tag f, :country %></p>
+          <p class="profile-error"><%= error_tag f, :country %></p>
         </div>
 
         <div class="form-group">
           <%= label f, :bio %>
           <%= textarea f, :bio, class: "form-control", placeholder: "Write something about yourself. You can mention your hobbies, passion, etc", rows: 5 %>
-          <p><%= error_tag f, :bio %></p>
+          <p class="profile-error"><%= error_tag f, :bio %></p>
         </div>
 
         <div class="form-group">
@@ -225,13 +225,13 @@ defmodule StrangerWeb.SettingsLive do
           <div class="form-group">
             <%= label f, "New password" %>
             <%= password_input f, :password, value: input_value(f, :password), class: "form-control" %>
-            <p><%= error_tag f, :password %></p>
+            <p class="profile-error"><%= error_tag f, :password %></p>
           </div>
 
           <div class="form-group">
             <%= label f, :password_confirmation %>
             <%= password_input f, :password_confirmation, value: input_value(f, :password_confirmation), class: "form-control" %>
-            <p><%= error_tag f, :password_confirmation %></p>
+            <p class="profile-error"><%= error_tag f, :password_confirmation %></p>
           </div>
         </p>
         <div class="form-group">

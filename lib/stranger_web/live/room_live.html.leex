@@ -1,17 +1,13 @@
-<h1><%= @room_id %></h1>
 <%= if !is_nil(@room) do %>
   <div id="videos">
-
-    <%= @user._id %> (you)<br>
     <div phx-update="ignore">
       <div phx-hook="PublisherInit" id="publisher-div"></div>
     </div>
 
     <%= if user = stranger_in_room(@room, @user) do %>
       <div id="user-<%= BSON.ObjectId.encode!(user.id) %>" style="margin-left: 10px">
-        <%= user.id %><br>
         <%= if is_nil(user.stream_id) do %>
-          Connecting to Video...
+          <strong> Connecting to Video... </strong>
         <% else %>
           <div phx-update="ignore">
             <div class="subscriber" id="subscriber-div-<%= user.stream_id %>"></div>
@@ -24,8 +20,7 @@
   <br><br>
 <% end %>
 
-<button id="end_meeting_button" type="button" phx-click="leave_room" class="btn btn-primary">End Conversation</button>
-
+<button id="end_meeting_button" type="button" phx-click="leave_room" class="btn btn-danger">End Conversation</button>
 <%= live_component @socket, StrangerWeb.ChatComponent, user: @user, stranger: @stranger, message_changeset: @message_changeset, messages: @messages, chat_box: @chat_box, unread_messages: @unread_messages %>
 
 <div id="stranger_details">
