@@ -16,33 +16,38 @@
     <%= if @conn.assigns[:user] do %>
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-          <a class="navbar-brand" href="<%= Routes.dashboard_path(@conn, :index) %>">Stranger</a>
-            <ul class="navbar-nav ml-auto">
-              <li class="nav-item">
-                <%= live_redirect to: Routes.dashboard_path(@conn, :index) do %>
-                  <i class="fa fa-search" aria-hidden="true"></i>
-                  Search
-                <% end %>
-              </li>
-              <li class="nav-item">
-                <%= live_redirect to: Routes.conversations_path(@conn, :index) do %>
-                  <i class="fa fa-comments" aria-hidden="true"></i>
-                  Conversations
-                <% end %>
-              </li>
-              <li class="nav-item">
-                <%= live_redirect to: Routes.settings_path(@conn, :index) do %>
-                  <i class="fa fa-user" aria-hidden="true"></i>
-                  Account
-                <% end %>
-              </li>
-              <li class="nav-item">
-                <%= link to: Routes.session_path(@conn, :sign_out), method: :delete, title: "logout" do %>
-                  <i class="fa fa-sign-out" aria-hidden="true"></i>
-                  Log out
-              </li>
-            </ul>
-          <% end %>
+          <div class="navbar-brand">
+            <a href="<%= Routes.dashboard_path(@conn, :index) %>">
+              <%= render StrangerWeb.LogoView, "_logo.html" %>
+              <div class="brand-text"> Stranger </div>
+            </a>
+          </div>
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <%= live_redirect to: Routes.dashboard_path(@conn, :index) do %>
+                <i class="fa fa-search" aria-hidden="true"></i>
+                Search
+              <% end %>
+            </li>
+            <li class="nav-item">
+              <%= live_redirect to: Routes.conversations_path(@conn, :index) do %>
+                <i class="fa fa-comments" aria-hidden="true"></i>
+                Conversations
+              <% end %>
+            </li>
+            <li class="nav-item">
+              <%= live_redirect to: Routes.settings_path(@conn, :index) do %>
+                <i class="fa fa-user" aria-hidden="true"></i>
+                Account
+              <% end %>
+            </li>
+            <li class="nav-item">
+              <%= link to: Routes.session_path(@conn, :sign_out), method: :delete, title: "logout" do %>
+                <i class="fa fa-sign-out" aria-hidden="true"></i>
+                Log out
+              <% end %>
+            </li>
+          </ul>
         </div>
       </nav>
     <% end %>

@@ -4,7 +4,7 @@
   </span>
   <p class="home_subheading"> Find your next friend... </p>
 
-  <div class="home_form">
+  <div class="home_form <%= if @section == 0, do: "login_home_form" %>">
     <%= if @section == 0 do %>
       <%= live_component @socket, StrangerWeb.LoginFormComponent, id: :login %>
     <% else %>

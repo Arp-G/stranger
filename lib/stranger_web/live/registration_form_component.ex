@@ -10,19 +10,19 @@ defmodule StrangerWeb.RegistrationFormComponent do
             <span class="required_field"> * </span>
             <%= label f, :email %>
             <%= email_input f, :email, phx_blur: "validate_email", class: "form-control" %>
-            <p><%= error_tag f, :email %></p>
+            <p class="profile-error"><%= error_tag f, :email %></p>
           </div>
 
           <div class="form-group">
             <span class="required_field"> * </span>
             <%= label f, :password %>
             <%= password_input f, :password, value: input_value(f, :password), class: "form-control" %>
-            <p><%= error_tag f, :password %></p>
+            <p class="profile-error"><%= error_tag f, :password %></p>
 
             <span class="required_field"> * </span>
             <%= label f, :password_confirmation %>
             <%= password_input f, :password_confirmation, value: input_value(f, :password_confirmation), class: "form-control" %>
-            <p><%= error_tag f, :password_confirmation %></p>
+            <p class="profile-error"><%= error_tag f, :password_confirmation %></p>
           </div>
         </section>
 
@@ -33,20 +33,20 @@ defmodule StrangerWeb.RegistrationFormComponent do
                 <span class="required_field"> * </span>
                 <%= label fp, :first_name %>
                 <%= text_input fp, :first_name, class: "form-control" %>
-                <p><%= error_tag fp, :first_name %></p>
+                <p class="profile-error"><%= error_tag fp, :first_name %></p>
               </div>
 
               <div class="form-group">
                 <span class="required_field"> * </span>
                 <%= label fp, :last_name %>
                 <%= text_input fp, :last_name, class: "form-control" %>
-                <p><%= error_tag fp, :last_name %></p>
+                <p class="profile-error"><%= error_tag fp, :last_name %></p>
               </div>
 
               <div class="form-group">
                 <%= label fp, :dob %>
                 <%= date_input fp, :dob, value: format_date(fp), class: "form-control" %>
-                <p><%= error_tag fp, :dob %></p>
+                <p class="profile-error"><%= error_tag fp, :dob %></p>
               </div>
             <% end %>
           </p>
@@ -66,7 +66,7 @@ defmodule StrangerWeb.RegistrationFormComponent do
 
               <div class="form-group avatar-input">
                 <%= live_file_input @uploads.avatar, phx_blur: :on_upload %>
-                <p><%= error_tag fp, :avatar %></p>
+                <p class="profile-error"><%= error_tag fp, :avatar %></p>
                 <br>
               </div>
 
@@ -79,13 +79,13 @@ defmodule StrangerWeb.RegistrationFormComponent do
               <div class="form-group">
                 <%= label fp, :country %>
                 <%= text_input fp, :country, class: "form-control", placeholder: "Where are you from ?" %>
-                <p><%= error_tag fp, :country %></p>
+                <p class="profile-error"><%= error_tag fp, :country %></p>
               </div>
 
               <div class="form-group">
                 <%= label fp, :bio %>
                 <%= textarea fp, :bio, class: "form-control", placeholder: "Write something about yourself. You can mention your hobbies, passion, etc", rows: 5 %>
-                <p><%= error_tag fp, :bio %></p>
+                <p class="profile-error"><%= error_tag fp, :bio %></p>
               </div>
 
             <% end %>
