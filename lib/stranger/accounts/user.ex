@@ -61,7 +61,7 @@ defmodule Stranger.Accounts.User do
   def put_password_hash(%Ecto.Changeset{valid?: true} = changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: password}} ->
-        put_change(changeset, :password_hash, "Argon2.hash_pwd_salt(password)")
+        put_change(changeset, :password_hash, Argon2.hash_pwd_salt(password))
 
       _ ->
         changeset

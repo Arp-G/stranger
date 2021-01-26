@@ -91,7 +91,7 @@ defmodule StrangerWeb.DashboardLive do
           </div>
         """
 
-      {:matched, conversation_id} ->
+      {:matched, _conversation_id} ->
         ~E"""
         <div class="flex-container">
           <span class="matched_message"> You have matched with <%= @stranger.profile.first_name %> </span>

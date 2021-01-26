@@ -34,3 +34,6 @@ npm-debug.log
 /priv/static/
 
 /config/*.secret.exs
+
+# Temporary uploads
+/tmp

@@ -2,6 +2,7 @@ defmodule StrangerWeb.LiveHelpers do
   alias Stranger.{Accounts, Uploaders.Avatar}
   import Phoenix.LiveView
   use Phoenix.HTML
+  @env Mix.env()
 
   def section_class(current_section, section) do
     if section != current_section, do: "d-none", else: ""
@@ -31,7 +32,8 @@ defmodule StrangerWeb.LiveHelpers do
 
   def handle_avatar_upload(socket, user) do
     consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
-      dest = Path.join("priv/static/uploads", Path.basename(path))
+      File.mkdir("uploads")
+      dest = Path.join("uploads", Path.basename(path))
       File.cp!(path, dest)
       dest
     end)
@@ -39,9 +41,11 @@ defmodule StrangerWeb.LiveHelpers do
       [file_path] ->
         case Avatar.store({file_path, user}) do
           {:ok, img_url} ->
+            File.rm!(file_path)
             Accounts.update_avatar(user, img_url)
 
           _ ->
+            File.rm(file_path)
             {:error, "Image upload failed"}
         end
 
@@ -54,7 +58,10 @@ defmodule StrangerWeb.LiveHelpers do
     if user.profile.avatar do
       Avatar.url({user.profile.avatar, user}, signed: true)
     else
-      StrangerWeb.Router.Helpers.static_path(StrangerWeb.Endpoint, "/images/avatar_placeholder.png")
+      StrangerWeb.Router.Helpers.static_path(
+        StrangerWeb.Endpoint,
+        "/images/avatar_placeholder.png"
+      )
     end
   end
 
@@ -70,7 +77,7 @@ defmodule StrangerWeb.LiveHelpers do
 
   def calculate_age(dob) do
     Timex.diff(DateTime.utc_now(), dob, :duration)
-    |> Elixir.Timex.Format.Duration.Formatters.Humanized.format
+    |> Elixir.Timex.Format.Duration.Formatters.Humanized.format()
     |> String.split(",")
     |> Enum.take(2)
     |> Enum.join(",")
@@ -97,7 +104,9 @@ defmodule StrangerWeb.LiveHelpers do
   end
 
   def get_msg_bubble_class(message, user) do
-    if message.sender_id == user._id, do: "bubble bubble-bottom-left", else: "bubble bubble-bottom-right"
+    if message.sender_id == user._id,
+      do: "bubble bubble-bottom-left",
+      else: "bubble bubble-bottom-right"
   end
 
   defp redirect_to_login(socket) do

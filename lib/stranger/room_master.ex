@@ -27,8 +27,8 @@ defmodule Stranger.RoomMaster do
   # Every 5 sec
   @cleanup_job_interval 5000
 
-  # 10 min
-  @max_room_duration 600
+  # 20 min
+  @max_room_duration 1200
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)

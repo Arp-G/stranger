@@ -33,7 +33,7 @@ defmodule StrangerWeb.Plugs.UserAuth do
       Application.get_env(:stranger, :secret_key),
       Application.get_env(:stranger, :salt),
       token,
-      max_age: 86400
+      max_age: 86_400
     )
   end
 end
