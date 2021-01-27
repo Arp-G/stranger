@@ -315,7 +315,8 @@ html, body {
 }
 
 body:not(.body-) {
-  background-color: #6666;
+  background-image: url("/images/general_background.jpg");
+  background-size: contain;
 }
 
 .home_heading {
@@ -435,7 +436,8 @@ body:not(.body-) {
 }
 
 .messages-container {
-  background-color: skyblue;
+  background-image: url("/images/chat_background.jpg");
+  background-size: contain;
   box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
   border-radius: 10px;
   padding: 20px;
@@ -499,7 +501,7 @@ body:not(.body-) {
 
 .message-sender {
   position: absolute;
-  font-size: 1.4em;
+  font-size: 1.2em;
   font-weight: bold;
   top: 10px;
   left: 20px;

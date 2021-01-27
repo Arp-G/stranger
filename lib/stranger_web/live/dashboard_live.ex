@@ -96,7 +96,7 @@ defmodule StrangerWeb.DashboardLive do
         <div class="flex-container">
           <span class="matched_message"> You have matched with <%= @stranger.profile.first_name %> </span>
           <div id="user">
-            <%= get_avatar_url(@user) |> img_tag %>
+            <%= get_avatar_url(@stranger) |> img_tag %>
           </div>
         </div>
         """
