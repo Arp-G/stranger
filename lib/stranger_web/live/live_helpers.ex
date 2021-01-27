@@ -32,8 +32,9 @@ defmodule StrangerWeb.LiveHelpers do
 
   def handle_avatar_upload(socket, user) do
     consume_uploaded_entries(socket, :avatar, fn %{path: path}, _entry ->
-      File.mkdir("uploads")
-      dest = Path.join("uploads", Path.basename(path))
+      dest_directory = "#{:code.priv_dir(:stranger)}/uploads"
+      File.mkdir_p(dest_directory)
+      dest = Path.join(dest_directory, Path.basename(path))
       File.cp!(path, dest)
       dest
     end)
