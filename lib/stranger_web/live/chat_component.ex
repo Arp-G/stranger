@@ -30,7 +30,7 @@ defmodule StrangerWeb.ChatComponent do
     </div>
     <%= f = form_for @message_changeset, "#", [phx_submit: :send_message, class: "chat_input chat_input_#{@chat_box}"] %>
       <div class="form-group">
-        <%= text_input f, :content, class: "form-control", auto_complete: false %>
+        <%= text_input f, :content, class: "form-control", autocomplete: "off" %>
         <%= submit "phx-disable-with": "Sending...", class: "btn btn-primary" do %>
           <i class="fa fa-paper-plane" aria-hidden="true"></i>
         <% end %>
