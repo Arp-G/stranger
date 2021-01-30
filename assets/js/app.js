@@ -7,6 +7,9 @@ import { Socket } from "phoenix"
 import NProgress from "nprogress"
 import { LiveSocket } from "phoenix_live_view"
 
+// Open tok
+const OT = require('@opentok/client');
+
 function handleError(error) {
   if (error) {
     alert(error.message);

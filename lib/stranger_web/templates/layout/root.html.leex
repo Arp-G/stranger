@@ -11,7 +11,6 @@
     <script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Potta+One&display=swap" rel="stylesheet">
-    <script type="text/javascript" src="https://static.opentok.com/v2/js/opentok.min.js"></script>
   </head>
   <body class="body-<%=@conn.path_info%>">
     <%= if @conn.assigns[:user] do %>
@@ -19,7 +18,7 @@
         <div class="container-fluid">
           <div class="navbar-brand">
             <a href="<%= Routes.dashboard_path(@conn, :index) %>">
-              <%= render StrangerWeb.LogoView, "_logo.html" %>
+              <img src="<%= Routes.static_path(@conn, "/images/logo.png") %>">
               <div class="brand-text"> Stranger </div>
             </a>
           </div>

@@ -7,6 +7,7 @@
     "watch": "webpack --mode development --watch"
   },
   "dependencies": {
+    "@opentok/client": "^2.19.0",
     "bootstrap": "4.5.2",
     "file-loader": "^6.2.0",
     "font-awesome": "^4.7.0",

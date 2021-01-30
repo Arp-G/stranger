@@ -123,6 +123,12 @@ html, body {
 
 // NAVBAR STYLES
 
+ .navbar-brand {
+    img {
+      max-width: 50px;
+    }
+ }
+
 .nav-item a {
   text-decoration: none;
   color: white;
